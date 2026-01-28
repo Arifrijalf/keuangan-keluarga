@@ -17,9 +17,9 @@ const LIST_ADMIN = [
 // 👇 TAMBAHKAN INI DI SINI 👇
 const FAMILY_EMAILS = [
     "arifrijalfadhilah@gmail.com", // Admin wajib masuk sini juga
-    "email.ayah@gmail.com",
-    "email.ibu@gmail.com",
-    "email.adik@gmail.com"
+    "ahiwjw18h@gmail.com",
+    "mamanyanazief@gmail.com",
+    "jasarfa1@gmail.com"
 ];
 
 firebase.initializeApp(firebaseConfig);
