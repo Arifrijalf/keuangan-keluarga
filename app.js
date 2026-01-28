@@ -14,6 +14,14 @@ const LIST_ADMIN = [
     // Tambahkan email admin lain
 ];
 
+// 👇 TAMBAHKAN INI DI SINI 👇
+const FAMILY_EMAILS = [
+    "arifrijalfadhilah@gmail.com", // Admin wajib masuk sini juga
+    "email.ayah@gmail.com",
+    "email.ibu@gmail.com",
+    "email.adik@gmail.com"
+];
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth(); 
@@ -36,24 +44,21 @@ let dataBudget = {};
 // ==========================================
 auth.onAuthStateChanged(user => {
     if (user) {
+        
+        // 👇 SISIPKAN KODE PENGECEKAN INI 👇
+        // Cek apakah email ada di daftar keluarga?
+        if (!FAMILY_EMAILS.includes(user.email)) {
+            alert("Maaf, email Anda tidak terdaftar sebagai keluarga! Hubungi Admin.");
+            auth.signOut(); // Tendang keluar user asing
+            return; // Hentikan proses, jangan lanjut ke bawah
+        }
+        // 👆 ----------------------------- 👆
+
         currentUser = user;
         isAdmin = LIST_ADMIN.includes(user.email);
         
         document.getElementById('loginScreen').classList.add('d-none');
         document.getElementById('appScreen').classList.remove('d-none');
-        document.getElementById('fotoUser').src = user.photoURL; 
-        document.getElementById('welcomeText').innerText = `Halo, ${user.displayName}!`;
-
-        document.getElementById('filterBulan').value = filterBulan;
-        document.getElementById('filterTahun').value = filterTahun;
-
-        pantauSaldoKeluarga();
-        pantauSaldoPribadi();
-        pantauBudget();
-        refreshTampilan(); 
-    } else {
-        document.getElementById('loginScreen').classList.remove('d-none');
-        document.getElementById('appScreen').classList.add('d-none');
     }
 });
 
