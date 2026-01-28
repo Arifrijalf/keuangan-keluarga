@@ -9,17 +9,21 @@ const firebaseConfig = {
 // ==========================================
 // 2. SETTING & INISIALISASI
 // ==========================================
+
+// DAFTAR ADMIN (Bisa Edit/Hapus Data Keluarga) 
 const LIST_ADMIN = [
     "arifrijalfadhilah@gmail.com", 
-    // Tambahkan email admin lain
+    // "ayah@gmail.com"
 ];
 
-// 👇 TAMBAHKAN INI DI SINI 👇
+// DAFTAR KELUARGA YANG DIIZINKAN LOGIN (Keamanan)
 const FAMILY_EMAILS = [
     "arifrijalfadhilah@gmail.com", // Admin wajib masuk sini juga
-    "ahiwjw18h@gmail.com",
+    "ahiwjw18@gmail.com",
+    "jasarfa1@gmail.com",
     "mamanyanazief@gmail.com",
-    "jasarfa1@gmail.com"
+    "aakuntest2007@gmail.com"
+    // Tambahkan email keluarga lainnya
 ];
 
 firebase.initializeApp(firebaseConfig);
@@ -44,21 +48,31 @@ let dataBudget = {};
 // ==========================================
 auth.onAuthStateChanged(user => {
     if (user) {
-        
-        // 👇 SISIPKAN KODE PENGECEKAN INI 👇
-        // Cek apakah email ada di daftar keluarga?
+        // 🔒 CEK KEAMANAN: APAKAH EMAIL TERDAFTAR?
         if (!FAMILY_EMAILS.includes(user.email)) {
             alert("Maaf, email Anda tidak terdaftar sebagai keluarga! Hubungi Admin.");
-            auth.signOut(); // Tendang keluar user asing
-            return; // Hentikan proses, jangan lanjut ke bawah
+            auth.signOut(); 
+            return; 
         }
-        // 👆 ----------------------------- 👆
 
         currentUser = user;
         isAdmin = LIST_ADMIN.includes(user.email);
         
         document.getElementById('loginScreen').classList.add('d-none');
         document.getElementById('appScreen').classList.remove('d-none');
+        document.getElementById('fotoUser').src = user.photoURL; 
+        document.getElementById('welcomeText').innerText = `Halo, ${user.displayName}!`;
+
+        document.getElementById('filterBulan').value = filterBulan;
+        document.getElementById('filterTahun').value = filterTahun;
+
+        pantauSaldoKeluarga();
+        pantauSaldoPribadi();
+        pantauBudget();
+        refreshTampilan(); 
+    } else {
+        document.getElementById('loginScreen').classList.remove('d-none');
+        document.getElementById('appScreen').classList.add('d-none');
     }
 });
 
@@ -92,7 +106,7 @@ function refreshTampilan() {
 }
 
 // ==========================================
-// 4. LOGIKA TABUNGAN (FIXED ADMIN PERSONAL TRANSFER)
+// 4. LOGIKA TABUNGAN (ALOKASI & RESET)
 // ==========================================
 
 function pantauTabungan() {
@@ -189,7 +203,6 @@ window.bukaModalSetorTabungan = (id, nama) => {
     new bootstrap.Modal(document.getElementById('modalSetorTabungan')).show();
 }
 
-// 🛠️ FIX PENTING DI SINI
 window.simpanSetoranTabungan = () => {
     const id = document.getElementById('idTabunganSetor').value;
     const namaTarget = document.getElementById('labelNamaTabungan').innerText;
@@ -199,7 +212,6 @@ window.simpanSetoranTabungan = () => {
 
     if (!jumlahSetor || jumlahSetor <= 0) return alert("Nominal salah!");
 
-    // Cek apakah ini Alokasi Kas (Hanya Admin di Tab Keluarga yang pilih 'kas_keluarga')
     const isAmbilKas = (sumber === 'kas_keluarga' && isAdmin && modeTab === 'keluarga');
 
     let dataTransaksi = {
@@ -215,14 +227,12 @@ window.simpanSetoranTabungan = () => {
         // KASUS 1: Admin ambil uang Kas Keluarga
         dataTransaksi.kategori = 'Alokasi Tabungan'; 
         dataTransaksi.keterangan = `Alokasi Kas ke Target: ${namaTarget}`;
-        // Tandai sebagai Transaksi Keluarga (biar saldo keluarga berkurang)
-        dataTransaksi.is_family_trx = true; 
+        dataTransaksi.is_family_trx = true; // Ditandai agar mengurangi Saldo Keluarga
     } else {
-        // KASUS 2: Setor Pakai Uang Pribadi (Admin/Member)
+        // KASUS 2: Setor Pakai Uang Pribadi
         dataTransaksi.kategori = 'Tabungan';
         dataTransaksi.keterangan = `Setor Pribadi ke: ${namaTarget}`;
-        // 🛠️ FIX: Tandai sebagai PRIBADI (biar saldo keluarga TIDAK berkurang jika Admin yang setor)
-        dataTransaksi.is_family_trx = false; 
+        dataTransaksi.is_family_trx = false; // Ditandai agar TIDAK mengurangi Saldo Keluarga
     }
 
     const updateTarget = db.collection('tabungan_goals').doc(id).update({
@@ -271,7 +281,7 @@ window.simpanSetorKas = () => {
         waktu: firebase.firestore.FieldValue.serverTimestamp(),
         email_pencatat: currentUser.email,
         nama_pencatat: currentUser.displayName,
-        is_family_trx: false // PRIBADI
+        is_family_trx: false 
     });
 
     // 2. Tambah Kas Keluarga
@@ -284,7 +294,7 @@ window.simpanSetorKas = () => {
         waktu: firebase.firestore.FieldValue.serverTimestamp(),
         email_pencatat: LIST_ADMIN[0], 
         nama_pencatat: currentUser.displayName,
-        is_family_trx: true // KELUARGA
+        is_family_trx: true 
     });
 
     Promise.all([catatPengeluaranUser, catatPemasukanKeluarga]).then(() => {
@@ -294,7 +304,7 @@ window.simpanSetorKas = () => {
 }
 
 // ==========================================
-// 6. LOGIKA BACA DATA (FIX SALDO)
+// 6. LOGIKA BACA DATA & SALDO
 // ==========================================
 
 function bacaDataTransaksi() {
@@ -313,23 +323,21 @@ function bacaDataTransaksi() {
             // --- FILTER TAMPILAN ---
             if (modeTab === 'keluarga') {
                 if (!isAdminEntry && !isMyEntry) return; 
-                // Jangan tampilkan transaksi PRIBADI milik Admin di list Keluarga
+                // Sembunyikan transaksi pribadi Admin dari list Keluarga
                 if (isAdminEntry && data.is_family_trx === false) return;
             } else {
                 if (!isMyEntry) return;
-                // Jangan tampilkan transaksi KELUARGA di list Pribadi Admin
+                // Sembunyikan transaksi keluarga dari list Pribadi Admin
                 if (data.is_family_trx === true && modeTab === 'pribadi') return;
             }
 
             // --- HITUNG SALDO REAL ---
             if (modeTab === 'keluarga') {
                 if (isAdminEntry) {
-                     // 🛠️ FIX UTAMA: Jika Admin melakukan transaksi PRIBADI (is_family_trx = false), 
-                     // JANGAN dihitung sebagai pengurangan Saldo Keluarga.
+                     // Jika Admin transaksi PRIBADI, jangan kurangi saldo keluarga
                      if (data.is_family_trx === false) {
-                         // Skip (Ini uang pribadi admin)
+                         // Skip
                      } else {
-                         // Ini uang keluarga (atau tidak ada labelnya/transaksi lama)
                          if (data.tipe === 'pemasukan') totalSaldoReal += parseInt(data.jumlah);
                          else totalSaldoReal -= parseInt(data.jumlah);
                      }
@@ -346,7 +354,7 @@ function bacaDataTransaksi() {
                 
                 dataDitemukan = true;
 
-                // Sembunyikan 'Setoran Anggota' di list Anggota
+                // Sembunyikan 'Setoran Anggota' di list Anggota (biar gak bingung)
                 if (modeTab === 'keluarga' && !isAdmin && isAdminEntry && data.kategori === 'Setoran Anggota') {
                     return; 
                 }
@@ -384,7 +392,7 @@ function renderChart(dataPengeluaran) {
     myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
 }
 
-// Fungsi Standar
+// FUNGSI CRUD STANDAR
 window.simpanTabunganBaru = () => { const nama = document.getElementById('namaTabungan').value; const target = parseInt(document.getElementById('targetTabungan').value); const tipeTabungan = modeTab === 'keluarga' ? 'keluarga' : 'pribadi'; db.collection('tabungan_goals').add({ nama: nama, target: target, terkumpul: 0, type: tipeTabungan, email_pemilik: currentUser.email, dibuat_pada: firebase.firestore.FieldValue.serverTimestamp() }).then(() => location.reload()); }
 window.hapusTabungan = () => { const id = document.getElementById('idTabunganSetor').value; if(confirm("Yakin hapus?")) db.collection('tabungan_goals').doc(id).delete().then(() => location.reload()); }
 function pantauSaldoKeluarga() { db.collection('pengaturan').doc('keuangan_keluarga').onSnapshot(doc => { saldoAwalKeluarga = doc.exists ? (doc.data().saldo || 0) : 0; if(modeTab === 'keluarga') refreshTampilan(); }); }
