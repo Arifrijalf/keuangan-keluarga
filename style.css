@@ -1,0 +1,18 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Biar input angka tidak ada tombol panah kecil di kanan */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.list-group-item {
+    border-left: 5px solid transparent;
+}
+
+/* Warna penanda di list nanti */
+.border-merah { border-left-color: #dc3545 !important; }
+.border-hijau { border-left-color: #198754 !important; }
