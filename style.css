@@ -1,18 +1,276 @@
+/* =========================================
+   1. IMPORT FONT & VARIABLES
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    /* --- LIGHT MODE (Soft & Clean) --- */
+    /* Background tidak putih murni, tapi abu-abu kebiruan sangat muda (Anti-Silau) */
+    --bg-body: #f4f7f6; 
+    
+    /* Teks Dark Grey (Lebih enak dibaca daripada hitam pekat) */
+    --text-main: #2d3436;
+    
+    /* Kartu Putih Bersih */
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    
+    /* Gradient Saldo: "Deep Ocean" (Biru Laut Tenang) */
+    --primary-gradient: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+    
+    /* Navbar */
+    --navbar-bg: #ffffff;
+    --navbar-text: #2d3436;
+    
+    /* Form Elements */
+    --input-bg: #f8f9fa;
+    --border-color: #e9ecef;
+}
+
+/* --- DARK MODE (Deep Charcoal) --- */
+body.dark-mode {
+    /* Background Charcoal Gelap (Bukan Hitam Mati/OLED Black agar tidak ghosting) */
+    --bg-body: #121212; 
+    
+    /* Teks Putih Gading (Soft White) */
+    --text-main: #e0e0e0;
+    
+    /* Kartu sedikit lebih terang dari background */
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    
+    /* Gradient Dark: Lebih Misterius */
+    --primary-gradient: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
+    
+    --navbar-bg: #1e1e1e;
+    --navbar-text: #ffffff;
+    
+    --input-bg: #2c2c2c;
+    --border-color: #333333;
+}
+
+/* =========================================
+   2. GLOBAL STYLES
+   ========================================= */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    /* Transisi halus saat ganti tema */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Biar input angka tidak ada tombol panah kecil di kanan */
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+/* =========================================
+   3. NAVBAR
+   ========================================= */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Pastikan teks navbar mengikuti tema */
+.navbar-brand, 
+.navbar .nav-link,
+.navbar i { 
+    color: var(--navbar-text) !important; 
+    transition: color 0.3s ease;
+}
+
+/* Animasi Tombol Tema (Matahari/Bulan) */
+#btnTheme:active { 
+    transform: rotate(360deg); 
+    transition: transform 0.5s ease; 
+}
+
+/* =========================================
+   4. CARD (KARTU) STYLING
+   ========================================= */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px; /* Sudut lebih bulat */
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+    overflow: hidden;
+}
+
+/* Efek melayang sedikit saat di-hover (Desktop) */
+@media (min-width: 992px) {
+    .card:hover {
+        transform: translateY(-4px);
+    }
+}
+
+/* KHUSUS KARTU SALDO UTAMA */
+.card-saldo-utama {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+}
+.card-saldo-utama h6, 
+.card-saldo-utama small { 
+    color: rgba(255,255,255, 0.8) !important; 
+}
+.card-saldo-utama h1 { 
+    color: white !important; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* =========================================
+   5. MENU TABS (PILLS)
+   ========================================= */
+.nav-pills .nav-link {
+    color: var(--text-main);
+    border-radius: 12px;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(43, 88, 118, 0.4);
+    font-weight: 600;
+}
+
+/* =========================================
+   6. BOOTSTRAP OVERRIDES (DARK MODE FIXES)
+   ========================================= */
+
+/* Paksa elemen Bootstrap mengikuti variabel kita */
+
+/* Input Form & Select */
+.form-control, .form-select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 12px;
+    padding: 10px 15px;
+}
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); /* Fokus biru soft */
+    border-color: #667eea;
+}
+
+/* Modal (Popup) */
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+}
+.modal-header, .modal-footer {
+    border-color: var(--border-color);
+}
+.btn-close {
+    /* Filter invert agar tombol X terlihat di dark mode */
+    filter: var(--btn-close-filter); 
+}
+
+/* List Group (Riwayat Transaksi) */
 .list-group-item {
-    border-left: 5px solid transparent;
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border-color: var(--border-color);
+    margin-bottom: 8px;
+    border-radius: 12px !important; /* Biar tiap item bulat */
 }
 
-/* Warna penanda di list nanti */
-.border-merah { border-left-color: #dc3545 !important; }
-.border-hijau { border-left-color: #198754 !important; }
+/* Text Muted (Teks abu-abu) */
+.text-muted {
+    color: #a0a0a0 !important; /* Sedikit lebih terang di dark mode */
+}
+
+/* Khusus Dark Mode: Balik warna tombol close modal */
+body.dark-mode {
+    --btn-close-filter: invert(1) grayscale(100%) brightness(200%);
+}
+body:not(.dark-mode) {
+    --btn-close-filter: none;
+}
+
+/* =========================================
+   7. RESPONSIVE UTILITIES
+   ========================================= */
+/* Agar Chart tidak gepeng di HP */
+canvas {
+    max-height: 250px;
+}
+
+/* Tombol Floating Action (Opsional, kalau mau nambah tombol melayang) */
+.fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+}
+
+/* =========================================
+   8. DARK MODE FIXES (Wajib Tambah Ini)
+   ========================================= */
+
+/* 1. Paksa semua teks di dalam card mengikuti warna tema (--text-main) */
+.card, .card-header, .card-body, .card-footer {
+    color: var(--text-main) !important;
+}
+
+/* 2. Fix untuk judul Modal & Card Header yang kadang bandel */
+.modal-title, h1, h2, h3, h4, h5, h6 {
+    color: var(--text-main);
+}
+
+/* 3. JURUS RAHASIA: Balikkan class 'text-dark' Bootstrap saat Dark Mode */
+/* Jika ada elemen yang terlanjur pakai class "text-dark", kita ubah jadi putih di mode gelap */
+body.dark-mode .text-dark {
+    color: #f8f9fa !important; /* Putih terang */
+}
+
+/* 4. Pastikan teks bold (fw-bold) tidak kembali ke hitam */
+.fw-bold {
+    color: inherit !important;
+}
+
+/* =========================================
+   9. LOGIN SCREEN KEREN (Glassmorphism)
+   ========================================= */
+
+/* 1. Background Image untuk seluruh layar login */
+#loginScreen {
+    /*
+       Kita pakai linear-gradient (rgba...) untuk membuat lapisan gelap transparan di atas gambar.
+       Ganti URL di dalam url('...') jika ingin pakai gambar lain.
+    */
+    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), 
+                url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    
+    background-size: cover;      /* Gambar memenuhi layar */
+    background-position: center; /* Gambar di tengah */
+    background-repeat: no-repeat;
+}
+
+/* 2. Ubah Kartu Login di tengah menjadi "Kaca Transparan" */
+#loginScreen .card {
+    /* Latar belakang putih semi-transparan */
+    background: rgba(255, 255, 255, 0.1); 
+    
+    /* Efek blur di belakang kartu (Kunci Glassmorphism) */
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); /* Untuk Safari/iPhone */
+    
+    /* Border tipis agar terlihat seperti kaca */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    /* Shadow yang lebih lembut dan menyebar */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* 3. Ubah warna teks judul agar kontras dengan background gelap */
+#loginScreen .card h1 {
+    color: #ffffff !important; /* Teks putih */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Sedikit bayangan pada teks */
+}

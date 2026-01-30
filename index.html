@@ -4,119 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keuangan Keluarga</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-light">
 
     <div id="loginScreen" class="container vh-100 d-flex justify-content-center align-items-center">
-        <div class="text-center">
-            <h1 class="mb-4">🔐<br>Keuangan Keluarga</h1>
-            <p class="text-muted">Silakan login untuk mulai mencatat</p>
-            <button class="btn btn-primary btn-lg shadow" onclick="loginGoogle()">
-                <i class="bi bi-google"></i> Masuk dengan Google
+        <div class="text-center card p-5 shadow-lg border-0" style="border-radius: 20px;">
+            <h1 class="mb-4 fw-bold text-primary">🔐<br>Keuangan<br>Keluarga</h1>
+            <button class="btn btn-primary btn-lg shadow rounded-pill px-5" onclick="loginGoogle()">
+                <i class="bi bi-google me-2"></i> Masuk dengan Google
             </button>
         </div>
     </div>
 
     <div id="appScreen" class="d-none">
         
-        <nav class="navbar navbar-dark bg-primary shadow-sm sticky-top">
-            <div class="container d-flex justify-content-between">
-                <span class="navbar-brand mb-0 h1">
-                    <i class="bi bi-wallet2"></i> Keuangan
+        <nav class="navbar shadow-sm sticky-top mb-4 py-3">
+            <div class="container d-flex justify-content-between align-items-center">
+                <span class="navbar-brand mb-0 h1 fw-bold fs-4">
+                    <i class="bi bi-wallet2 text-primary me-2"></i>Keuangan
                 </span>
-                <div class="d-flex align-items-center gap-2">
-                    <img id="fotoUser" src="" class="rounded-circle border border-white" width="35">
-                    <button onclick="logout()" class="btn btn-sm btn-light text-primary fw-bold">Keluar</button>
+                <div class="d-flex align-items-center gap-3">
+                    <button id="btnTheme" class="btn btn-link text-decoration-none fs-5 p-0 border-0" onclick="toggleDarkMode()">
+                        <i id="iconTheme" class="bi bi-moon-stars-fill text-primary"></i>
+                    </button>
+                    
+                    <div class="vr mx-1 opacity-25"></div> 
+
+                    <img id="fotoUser" src="" class="rounded-circle border border-2 border-primary p-1" width="40" height="40">
+                    <button onclick="logout()" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3">Keluar</button>
                 </div>
             </div>
         </nav>
 
-        <div class="container mt-4">
+        <div class="container pb-5">
             
-            <ul class="nav nav-pills nav-fill mb-3 shadow-sm bg-white rounded p-1">
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm bg-white rounded-4 p-1 border">
                 <li class="nav-item">
-                    <button class="nav-link active fw-bold" id="tabKeluarga" onclick="gantiTab('keluarga')">
+                    <button class="nav-link active fw-bold rounded-4 py-2" id="tabKeluarga" onclick="gantiTab('keluarga')">
                         👨‍👩‍👧‍👦 Kas Keluarga
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link fw-bold" id="tabPribadi" onclick="gantiTab('pribadi')">
+                    <button class="nav-link fw-bold rounded-4 py-2" id="tabPribadi" onclick="gantiTab('pribadi')">
                         👤 Kas Pribadi
                     </button>
                 </li>
             </ul>
 
-            <div id="areaTransfer" class="d-grid gap-2 mb-3 d-none">
-                <button class="btn btn-success shadow-sm fw-bold" onclick="bukaModalSetorKas()">
-                    <i class="bi bi-box-arrow-in-down"></i> Setor Uang ke Kas Keluarga 💸
+            <div id="areaTransfer" class="d-grid gap-2 mb-4 d-none">
+                <button class="btn btn-primary shadow fw-bold py-3 rounded-4" onclick="bukaModalSetorKas()">
+                    <i class="bi bi-send-fill me-2"></i> Setor ke Kas Keluarga 💸
                 </button>
             </div>
 
-            <div class="card text-center mb-4 shadow-sm border-0 bg-white">
-                <div class="card-body">
-                    <small id="welcomeText" class="text-success fw-bold"></small>
-                    <h6 class="text-muted mt-2" id="judulSaldo">Sisa Saldo Keluarga</h6>
+            <div class="card card-saldo-utama text-center mb-4 shadow border-0">
+                <div class="card-body py-4">
+                    <small id="welcomeText" class="text-white-50 fw-bold"></small>
+                    <h6 class="text-white-50 mt-2" id="judulSaldo">Sisa Saldo</h6>
                     
-                    <div class="d-flex justify-content-center align-items-center gap-2">
-                        <h1 class="display-4 fw-bold text-primary mb-0" id="tampilanSaldo">Rp 0</h1>
-                        <button id="btnEditSaldo" class="btn btn-sm btn-outline-secondary rounded-circle d-none" onclick="bukaModalSaldo()">
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                        <h1 class="display-4 fw-bold mb-0" id="tampilanSaldo">Rp 0</h1>
+                        <button id="btnEditSaldo" class="btn btn-sm btn-light text-primary rounded-circle shadow-sm d-none" onclick="bukaModalSaldo()">
                             <i class="bi bi-pencil-fill"></i>
                         </button>
                     </div>
-                    <small class="text-muted" id="infoSaldoAwal">(Saldo Awal: Rp 0)</small>
+                    <small class="text-white-50" id="infoSaldoAwal">(Saldo Awal: Rp 0)</small>
 
-                    <div class="mt-4" style="position: relative; height:250px; width:100%">
+                    <div class="mt-4" style="position: relative; height:220px; width:100%">
                         <canvas id="myChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="card mb-4 shadow-sm border-0 bg-info-subtle">
-                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center border-info">
-                    <span class="text-info-emphasis">💰 Target Tabungan</span>
-                    <button id="btnTambahTabungan" class="btn btn-sm btn-info text-white fw-bold shadow-sm" onclick="bukaModalTambahTabungan()">
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-piggy-bank text-warning me-2"></i>Target Tabungan</span>
+                    <button id="btnTambahTabungan" class="btn btn-sm btn-warning text-dark fw-bold shadow-sm rounded-pill px-3" onclick="bukaModalTambahTabungan()">
                         <i class="bi bi-plus-lg"></i> Target Baru
                     </button>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     <div id="containerTabungan" class="row g-3">
                         </div>
                 </div>
             </div>
 
             <div class="card mb-4 shadow-sm border-0">
-                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                    <span>🎯 Batas Pengeluaran</span>
-                    <button id="btnAturBudget" class="btn btn-sm btn-outline-primary" onclick="bukaModalBudget()">
-                        <i class="bi bi-gear-fill"></i> Atur
+                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-graph-up-arrow text-info me-2"></i>Batas Pengeluaran</span>
+                    <button id="btnAturBudget" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" onclick="bukaModalBudget()">
+                        <i class="bi bi-gear-fill me-1"></i> Atur
                     </button>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     <div id="containerBudget">
-                        <p class="text-muted text-center small fst-italic">Belum ada batas anggaran.</p>
+                        <p class="text-center small text-muted fst-italic py-3">Belum ada data anggaran.</p>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-4 shadow-sm border-0">
-                <div class="card-header bg-white fw-bold">
-                    <i class="bi bi-plus-circle"></i> Catat Transaksi
+                <div class="card-header bg-transparent fw-bold py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Catat Transaksi</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     <form id="formTransaksi">
-                        <div class="row g-2">
+                        <div class="row g-3">
                             <div class="col-6">
-                                <select class="form-select" id="tipe">
+                                <label class="small text-muted mb-1">Tipe</label>
+                                <select class="form-select border-0 bg-light fw-bold" id="tipe">
                                     <option value="pengeluaran">🔴 Keluar</option>
                                     <option value="pemasukan">🟢 Masuk</option>
                                 </select>
                             </div>
                             <div class="col-6">
-                                <select class="form-select" id="kategori">
+                                <label class="small text-muted mb-1">Kategori</label>
+                                <select class="form-select border-0 bg-light fw-bold" id="kategori">
                                     <option value="Makan">🍽️ Makan</option>
                                     <option value="Jajan">🍦 Jajan</option>
                                     <option value="Transport">🛵 Transport</option>
@@ -126,139 +139,81 @@
                                 </select>
                             </div>
                             <div class="col-12">
-                                <input type="number" class="form-control" id="jumlah" placeholder="Rp Jumlah (Contoh: 15000)" required>
+                                <input type="number" class="form-control border-0 bg-light py-3" id="jumlah" placeholder="Rp 0" required style="font-size: 1.2rem; font-weight: bold;">
                             </div>
                             <div class="col-12">
-                                <input type="text" class="form-control" id="keterangan" placeholder="Keterangan" required>
+                                <input type="text" class="form-control border-0 bg-light" id="keterangan" placeholder="Catatan transaksi..." required>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan</button>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-4 shadow-sm">Simpan Transaksi</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-                <h6 class="text-muted mb-0">Riwayat Transaksi</h6>
-                <div class="d-flex gap-1">
-                    <select id="filterBulan" class="form-select form-select-sm" onchange="refreshTampilan()" style="width: 100px;">
-                        <option value="0">Januari</option>
-                        <option value="1">Februari</option>
-                        <option value="2">Maret</option>
-                        <option value="3">April</option>
-                        <option value="4">Mei</option>
-                        <option value="5">Juni</option>
-                        <option value="6">Juli</option>
-                        <option value="7">Agustus</option>
-                        <option value="8">September</option>
-                        <option value="9">Oktober</option>
-                        <option value="10">November</option>
-                        <option value="11">Desember</option>
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+                <h6 class="text-muted mb-0 fw-bold">Riwayat Transaksi</h6>
+                <div class="d-flex gap-2">
+                    <select id="filterBulan" class="form-select form-select-sm border-0 bg-white shadow-sm" onchange="refreshTampilan()" style="width: 100px;">
+                        <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+                        <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
+                        <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
+                        <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
                     </select>
-                    <select id="filterTahun" class="form-select form-select-sm" onchange="refreshTampilan()" style="width: 80px;">
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
+                    <select id="filterTahun" class="form-select form-select-sm border-0 bg-white shadow-sm" onchange="refreshTampilan()" style="width: 80px;">
+                        <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
                     </select>
                 </div>
             </div>
 
-            <ul class="list-group shadow-sm mb-5" id="daftarTransaksi">
+            <ul class="list-group shadow-sm border-0 mb-5" id="daftarTransaksi">
                 </ul>
         </div>
     </div>
 
     <div class="modal fade" id="modalSaldoAwal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Atur Saldo Awal</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Masukkan saldo awal dompet.</p>
-                    <input type="number" id="inputSaldoAwal" class="form-control" placeholder="Rp">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary w-100" onclick="simpanSaldoAwal()">Simpan Perubahan</button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold">Atur Saldo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><input type="number" id="inputSaldoAwal" class="form-control form-control-lg bg-light border-0" placeholder="Rp"></div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-primary w-100 rounded-pill" onclick="simpanSaldoAwal()">Simpan</button></div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalEditTransaksi" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning-subtle">
-                    <h5 class="modal-title fw-bold">✏️ Edit Transaksi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold text-warning">✏️ Edit</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <input type="hidden" id="editId">
-                    <div class="mb-2">
-                        <select class="form-select" id="editTipe">
-                            <option value="pengeluaran">🔴 Pengeluaran</option>
-                            <option value="pemasukan">🟢 Pemasukan</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <select class="form-select" id="editKategori">
-                            <option value="Makan">🍽️ Makan</option>
-                            <option value="Jajan">🍦 Jajan</option>
-                            <option value="Transport">🛵 Transport</option>
-                            <option value="Belanja">🛒 Belanja</option>
-                            <option value="Tagihan">⚡ Tagihan</option>
-                            <option value="Lainnya">etc Lainnya</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <input type="number" class="form-control" id="editJumlah">
-                    </div>
-                    <div class="mb-2">
-                        <input type="text" class="form-control" id="editKeterangan">
-                    </div>
+                    <select class="form-select mb-3 bg-light border-0" id="editTipe"><option value="pengeluaran">🔴 Keluar</option><option value="pemasukan">🟢 Masuk</option></select>
+                    <select class="form-select mb-3 bg-light border-0" id="editKategori"><option value="Makan">🍽️ Makan</option><option value="Jajan">🍦 Jajan</option><option value="Transport">🛵 Transport</option><option value="Belanja">🛒 Belanja</option><option value="Tagihan">⚡ Tagihan</option><option value="Lainnya">etc Lainnya</option></select>
+                    <input type="number" class="form-control mb-3 bg-light border-0" id="editJumlah">
+                    <input type="text" class="form-control bg-light border-0" id="editKeterangan">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-warning w-100 fw-bold" onclick="updateTransaksi()">Simpan Perubahan</button>
-                </div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-warning w-100 rounded-pill fw-bold" onclick="updateTransaksi()">Update</button></div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalAturBudget" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info-subtle">
-                    <h5 class="modal-title fw-bold">🎯 Batas Pengeluaran</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold text-info">🎯 Batas Anggaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <form id="formBudget">
-                        <div class="mb-2 input-group input-group-sm">
-                            <span class="input-group-text w-25">Makan</span>
-                            <input type="number" class="form-control" id="budgetMakan">
-                        </div>
-                        <div class="mb-2 input-group input-group-sm">
-                            <span class="input-group-text w-25">Jajan</span>
-                            <input type="number" class="form-control" id="budgetJajan">
-                        </div>
-                        <div class="mb-2 input-group input-group-sm">
-                            <span class="input-group-text w-25">Transport</span>
-                            <input type="number" class="form-control" id="budgetTransport">
-                        </div>
-                        <div class="mb-2 input-group input-group-sm">
-                            <span class="input-group-text w-25">Belanja</span>
-                            <input type="number" class="form-control" id="budgetBelanja">
-                        </div>
-                        <div class="mb-2 input-group input-group-sm">
-                            <span class="input-group-text w-25">Tagihan</span>
-                            <input type="number" class="form-control" id="budgetTagihan">
-                        </div>
+                        <div class="mb-3"><label class="small text-muted">Makan</label><input type="number" class="form-control border-0 bg-light" id="budgetMakan"></div>
+                        <div class="mb-3"><label class="small text-muted">Jajan</label><input type="number" class="form-control border-0 bg-light" id="budgetJajan"></div>
+                        <div class="mb-3"><label class="small text-muted">Transport</label><input type="number" class="form-control border-0 bg-light" id="budgetTransport"></div>
+                        <div class="mb-3"><label class="small text-muted">Belanja</label><input type="number" class="form-control border-0 bg-light" id="budgetBelanja"></div>
+                        <div class="mb-3"><label class="small text-muted">Tagihan</label><input type="number" class="form-control border-0 bg-light" id="budgetTagihan"></div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-info w-100 fw-bold text-white" onclick="simpanBudget()">Simpan Target</button>
+                <div class="modal-footer border-0 d-flex justify-content-between">
+                    <button type="button" id="btnResetBudget" class="btn btn-outline-danger rounded-pill" onclick="resetBudget()"><i class="bi bi-trash"></i> Reset</button>
+                    <button type="button" class="btn btn-info text-white fw-bold rounded-pill px-4" onclick="simpanBudget()">Simpan</button>
                 </div>
             </div>
         </div>
@@ -266,66 +221,44 @@
 
     <div class="modal fade" id="modalTambahTabungan" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info-subtle">
-                    <h5 class="modal-title fw-bold">💰 Buat Target Baru</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0"><h5 class="modal-title fw-bold">Target Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nama Target</label>
-                        <input type="text" id="namaTabungan" class="form-control" placeholder="Contoh: Liburan">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Target Nominal (Rp)</label>
-                        <input type="number" id="targetTabungan" class="form-control" placeholder="Contoh: 5000000">
-                    </div>
+                    <div class="mb-3"><label class="small text-muted">Nama Target</label><input type="text" id="namaTabungan" class="form-control border-0 bg-light"></div>
+                    <div class="mb-3"><label class="small text-muted">Nominal Target (Rp)</label><input type="number" id="targetTabungan" class="form-control border-0 bg-light"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success w-100 fw-bold" onclick="simpanTabunganBaru()">Buat Target</button>
-                </div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-success w-100 rounded-pill fw-bold" onclick="simpanTabunganBaru()">Buat Target</button></div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalSetorTabungan" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success-subtle">
-                    <h5 class="modal-title fw-bold">Isi Tabungan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-success-subtle"><h5 class="modal-title fw-bold text-success-emphasis">Isi Tabungan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <input type="hidden" id="idTabunganSetor">
-                    <h5 id="labelNamaTabungan" class="text-center mb-1 text-success fw-bold"></h5>
+                    <h4 id="labelNamaTabungan" class="text-center fw-bold text-success mb-3"></h4>
                     
-                    <div id="divSumberDana" class="mb-3 d-none p-2 bg-light border rounded">
-                        <label class="form-label fw-bold small text-muted">Sumber Uang:</label>
-                        <select id="pilihanSumber" class="form-select form-select-sm fw-bold">
-                            <option value="pribadi">👤 Dompet Pribadi Saya</option>
-                            <option value="kas_keluarga">👨‍👩‍👧‍👦 Ambil dari Kas Keluarga</option>
+                    <div id="divSumberDana" class="mb-3 d-none p-3 bg-light border rounded-3">
+                        <label class="small fw-bold text-muted mb-1">Sumber Uang:</label>
+                        <select id="pilihanSumber" class="form-select border-0 shadow-sm fw-bold">
+                            <option value="pribadi">👤 Dompet Pribadi</option>
+                            <option value="kas_keluarga">👨‍👩‍👧‍👦 Kas Keluarga</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nominal (Rp)</label>
-                        <input type="number" id="inputSetoran" class="form-control form-control-lg">
-                        <small class="text-muted text-danger fst-italic mt-1 d-block">
-                            *Saldo akan berkurang sesuai sumber yang dipilih.
-                        </small>
+                        <label class="small text-muted">Nominal (Rp)</label>
+                        <input type="number" id="inputSetoran" class="form-control form-control-lg border-0 bg-light fw-bold">
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
+                <div class="modal-footer border-0 d-flex justify-content-between">
                     <div id="grupTombolAdmin" class="d-none">
-                        <button type="button" id="btnHapusTabungan" class="btn btn-outline-danger btn-sm" onclick="hapusTabungan()" title="Hapus Permanen">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                        <button type="button" id="btnResetTabungan" class="btn btn-outline-warning btn-sm" onclick="resetTabungan()" title="Kembalikan ke 0">
-                            <i class="bi bi-arrow-counterclockwise"></i> Reset
-                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill" onclick="hapusTabungan()" title="Hapus"><i class="bi bi-trash"></i></button>
+                        <button type="button" class="btn btn-outline-warning btn-sm rounded-pill" onclick="resetTabungan()" title="Reset 0"><i class="bi bi-arrow-counterclockwise"></i></button>
                     </div>
-
-                    <button type="button" class="btn btn-success fw-bold px-4 ms-auto" onclick="simpanSetoranTabungan()">Kirim 🚀</button>
+                    <button type="button" class="btn btn-success fw-bold ms-auto rounded-pill px-4" onclick="simpanSetoranTabungan()">Kirim 🚀</button>
                 </div>
             </div>
         </div>
@@ -333,35 +266,14 @@
 
     <div class="modal fade" id="modalSetorKas" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary-subtle">
-                    <h5 class="modal-title fw-bold">💸 Setor ke Kas Keluarga</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-primary-subtle"><h5 class="modal-title fw-bold text-primary-emphasis">Setor ke Kas Keluarga</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <p class="text-center text-muted small mb-3">
-                        Pindahkan uang dari dompet pribadimu ke kas umum keluarga.
-                    </p>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nominal (Rp)</label>
-                        <input type="number" id="jumlahSetorKas" class="form-control form-control-lg" placeholder="Contoh: 10000">
-                        <small class="text-muted text-danger fst-italic mt-1 d-block">
-                            *Saldo pribadimu berkurang, Saldo keluarga bertambah.
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Catatan</label>
-                        <input type="text" id="ketSetorKas" class="form-control" placeholder="Contoh: Sisa uang jajan">
-                    </div>
+                    <p class="text-center text-muted small mb-4">Uang akan dipindah dari dompet pribadimu ke kas admin keluarga.</p>
+                    <div class="mb-3"><label class="small text-muted">Nominal (Rp)</label><input type="number" id="jumlahSetorKas" class="form-control form-control-lg border-0 bg-light fw-bold"></div>
+                    <div class="mb-3"><label class="small text-muted">Catatan</label><input type="text" id="ketSetorKas" class="form-control border-0 bg-light" placeholder="Contoh: Iuran Bulanan"></div>
                 </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary fw-bold w-100" onclick="simpanSetorKas()">
-                        Kirim Uang Sekarang 🚀
-                    </button>
-                </div>
+                <div class="modal-footer border-0"><button type="button" class="btn btn-primary w-100 fw-bold rounded-pill" onclick="simpanSetorKas()">Kirim Uang 💸</button></div>
             </div>
         </div>
     </div>
@@ -371,5 +283,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Error:', err));
+            });
+        }
+    </script>
 </body>
 </html>
