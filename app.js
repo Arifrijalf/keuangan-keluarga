@@ -1,3 +1,6 @@
+// ==========================================
+// 1. CONFIG FIREBASE & INISIALISASI
+// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBxChORtQoRO66kOmhESsepnywDLII6K-4",
   authDomain: "keuangankeluarga-ca833.firebaseapp.com",
@@ -6,9 +9,6 @@ const firebaseConfig = {
   messagingSenderId: "489829945579",
   appId: "1:489829945579:web:6d65b761844bc1d827aeae"
 };
-// ==========================================
-// 2. SETTING & INISIALISASI
-// ==========================================
 
 // DAFTAR ADMIN (Bisa Edit/Hapus Data Keluarga) 
 const LIST_ADMIN = [
@@ -16,14 +16,13 @@ const LIST_ADMIN = [
     "jasarfa1@gmail.com"
 ];
 
-// DAFTAR KELUARGA YANG DIIZINKAN LOGIN (Keamanan)
+// DAFTAR KELUARGA YANG DIIZINKAN LOGIN
 const FAMILY_EMAILS = [
-    "arifrijalfadhilah@gmail.com", // Admin wajib masuk sini juga
+    "arifrijalfadhilah@gmail.com",
     "ahiwjw18@gmail.com",
     "jasarfa1@gmail.com",
     "mamanyanazief@gmail.com",
     "aakuntest2007@gmail.com"
-    // Tambahkan email keluarga lainnya
 ];
 
 firebase.initializeApp(firebaseConfig);
@@ -48,7 +47,16 @@ let filterTahun = new Date().getFullYear();
 let dataBudget = {}; 
 let currentPengeluaran = {}; 
 
-// --- AUTH & TEMA ---
+// [FITUR] LIST KATEGORI DINAMIS
+const KATEGORI_LIST = {
+    'pengeluaran': ['Makan', 'Jajan', 'Transport', 'Belanja', 'Tagihan', 'Kesehatan', 'Sedekah', 'Lainnya'],
+    'pemasukan': ['Gaji', 'Bonus', 'Hadiah', 'Penjualan', 'Investasi', 'Lainnya']
+};
+
+// ===============================================
+// 3. AUTH & TEMA
+// ===============================================
+
 if (localStorage.getItem('theme') === 'dark') enableDarkMode(true);
 
 auth.onAuthStateChanged(user => {
@@ -66,12 +74,46 @@ auth.onAuthStateChanged(user => {
         document.getElementById('filterBulan').value = filterBulan;
         document.getElementById('filterTahun').value = filterTahun;
 
+        // Init Kategori & Listeners
+        updateKategori();
+        
+        const tipeSelect = document.getElementById('tipe');
+        if(tipeSelect) {
+            tipeSelect.addEventListener('change', updateKategori);
+        }
+
+        const editTipeSelect = document.getElementById('editTipe');
+        if(editTipeSelect) {
+            editTipeSelect.addEventListener('change', () => updatePilihanKategori('editTipe', 'editKategori'));
+        }
+
         pantauSaldoKeluarga(); pantauSaldoPribadi(); pantauBudget(); refreshTampilan(); 
     } else {
         document.getElementById('loginScreen').classList.remove('d-none');
         document.getElementById('appScreen').classList.add('d-none');
     }
 });
+
+// Update Dropdown Kategori
+function updateKategori() { updatePilihanKategori('tipe', 'kategori'); }
+
+function updatePilihanKategori(idTipe, idKategori) {
+    const tipeEl = document.getElementById(idTipe);
+    const selectEl = document.getElementById(idKategori);
+    
+    if(!tipeEl || !selectEl) return; 
+
+    const tipe = tipeEl.value;
+    selectEl.innerHTML = '';
+    
+    const list = KATEGORI_LIST[tipe] || [];
+    list.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item; 
+        option.text = item;
+        selectEl.appendChild(option);
+    });
+}
 
 function toggleDarkMode() { enableDarkMode(!document.body.classList.contains('dark-mode')); }
 function enableDarkMode(isDark) {
@@ -90,8 +132,16 @@ function enableDarkMode(isDark) {
     }
     const color = isDark ? '#e0e0e0' : '#666';
     if(myChart) { myChart.options.plugins.legend.labels.color = color; myChart.update(); }
-    if(myLineChart) { myLineChart.options.scales.x.ticks.color = color; myLineChart.options.scales.y.ticks.color = color; myLineChart.update(); }
+    if(myLineChart) { 
+        myLineChart.options.scales.x.ticks.color = color; 
+        myLineChart.options.scales.y.ticks.color = color; 
+        myLineChart.update(); 
+    }
 }
+
+// ===============================================
+// 4. NAVIGASI TAB & DISPLAY DATA
+// ===============================================
 
 window.gantiTab = (mode) => {
     modeTab = mode;
@@ -117,7 +167,6 @@ function refreshTampilan() {
     bacaDataTransaksi(); updateTombolEdit(); pantauTabungan(); pantauLangganan();
 }
 
-// --- DATA TRANSAKSI ---
 function bacaDataTransaksi() {
     db.collection('transaksi').orderBy('waktu', 'asc').onSnapshot(snapshot => {
         let html = '';
@@ -163,7 +212,6 @@ function bacaDataTransaksi() {
 
         let docsRev = allDocs.slice().reverse();
         docsRev.forEach(data => {
-            // (Logika filter sama dengan atas)
             const listAdmin = (typeof LIST_ADMIN !== 'undefined') ? LIST_ADMIN : [];
             const isAdminEntry = listAdmin.includes(data.email_pencatat);
             const isMyEntry = data.email_pencatat === currentUser.email;
@@ -181,9 +229,26 @@ function bacaDataTransaksi() {
                 const ico = data.tipe === 'pemasukan' ? 'bi-arrow-down-circle-fill text-success' : 'bi-arrow-up-circle-fill text-danger';
                 let btn = '';
                 if (isAdmin || isMyEntry) {
-                    btn = `<div class="ms-2"><button class="btn btn-sm text-warning p-0 me-2" onclick="bukaModalEdit('${data.id}')"><i class="bi bi-pencil-square"></i></button><button class="btn btn-sm text-danger p-0" onclick="hapusData('${data.id}')"><i class="bi bi-trash"></i></button></div>`;
+                    // [FIX] Tambahkan style z-index agar tombol pasti bisa diklik
+                    btn = `<div class="ms-2 text-end" style="z-index: 100; position: relative;">
+                            <button class="btn btn-sm text-warning p-0 me-2" onclick="bukaModalEdit('${data.id}')"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm text-danger p-0" onclick="hapusData('${data.id}')"><i class="bi bi-trash"></i></button>
+                           </div>`;
                 }
-                html += `<li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded ${cls}"><div class="d-flex align-items-center"><i class="bi ${ico} fs-3 me-3"></i><div><div class="fw-bold">${data.kategori}</div><div class="small text-muted">${dateObj.toLocaleDateString('id-ID')} • ${data.keterangan}</div><div class="badge bg-light text-secondary border mt-1" style="font-size:0.7em">${data.nama_pencatat}</div></div></div><div class="text-end"><span class="fw-bold d-block ${data.tipe === 'pemasukan' ? 'text-success' : 'text-danger'}">Rp ${parseInt(data.jumlah).toLocaleString('id-ID')}</span>${btn}</div></li>`;
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded ${cls}" style="z-index: 1; position: relative;">
+                            <div class="d-flex align-items-center">
+                                <i class="bi ${ico} fs-3 me-3"></i>
+                                <div>
+                                    <div class="fw-bold">${data.kategori}</div>
+                                    <div class="small text-muted">${dateObj.toLocaleDateString('id-ID')} • ${data.keterangan}</div>
+                                    <div class="badge bg-light text-secondary border mt-1" style="font-size:0.7em">${data.nama_pencatat}</div>
+                                </div>
+                            </div>
+                            <div class="text-end" style="z-index: 50; position: relative;">
+                                <span class="fw-bold d-block ${data.tipe === 'pemasukan' ? 'text-success' : 'text-danger'}">Rp ${parseInt(data.jumlah).toLocaleString('id-ID')}</span>
+                                ${btn}
+                            </div>
+                        </li>`;
             }
         });
 
@@ -192,106 +257,52 @@ function bacaDataTransaksi() {
     });
 }
 
-// --- CHART & LINE ---
 function renderChart(stats) {
     const ctx = document.getElementById('myChart'); if(myChart) myChart.destroy();
     if(Object.keys(stats).length === 0) return;
     myChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(stats), datasets: [{ data: Object.values(stats), backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: document.body.classList.contains('dark-mode')?'#e0e0e0':'#666' } } } } });
 }
-// Grafik Garis (Tren Harian) - Updated: Support Dual Lines
-function renderLineChart(dataHarian) {
+
+function renderLineChart(daily) {
     const ctx = document.getElementById('lineChart');
     if (!ctx) return;
     if (myLineChart) myLineChart.destroy();
 
-    const labels = Object.keys(dataHarian).sort((a,b) => a - b);
-    const tipeView = document.getElementById('tipeGrafik').value; // 'semua', 'pemasukan', 'pengeluaran'
+    const lbls = Object.keys(daily).sort((a,b) => a - b);
+    const type = document.getElementById('tipeGrafik').value; 
     
-    // Siapkan Data Array
-    const dataMasuk = labels.map(tgl => dataHarian[tgl].pemasukan);
-    const dataKeluar = labels.map(tgl => dataHarian[tgl].pengeluaran);
+    const dataMasuk = lbls.map(tgl => daily[tgl].pemasukan);
+    const dataKeluar = lbls.map(tgl => daily[tgl].pengeluaran);
 
-    // Konfigurasi Warna
     const isDark = document.body.classList.contains('dark-mode');
     const textColor = isDark ? '#e0e0e0' : '#666';
     
-    // Siapkan Datasets (Bisa 1 atau 2 garis)
     let datasets = [];
-
-    // Dataset Pemasukan (Hijau)
-    const datasetMasuk = {
-        label: 'Pemasukan',
-        data: dataMasuk,
-        borderColor: '#2ecc71', // Hijau
-        backgroundColor: 'rgba(46, 204, 113, 0.1)', // Hijau Transparan
-        borderWidth: 3,
-        tension: 0.4,
-        fill: true,
-        pointRadius: 3,
-        pointBackgroundColor: '#2ecc71'
-    };
-
-    // Dataset Pengeluaran (Merah)
-    const datasetKeluar = {
-        label: 'Pengeluaran',
-        data: dataKeluar,
-        borderColor: '#e74c3c', // Merah
-        backgroundColor: 'rgba(231, 76, 60, 0.1)', // Merah Transparan
-        borderWidth: 3,
-        tension: 0.4,
-        fill: true,
-        pointRadius: 3,
-        pointBackgroundColor: '#e74c3c'
-    };
-
-    // LOGIKA PEMILIHAN
-    if (tipeView === 'semua') {
-        datasets.push(datasetMasuk);  // Masukkan Garis Hijau
-        datasets.push(datasetKeluar); // Masukkan Garis Merah
-    } else if (tipeView === 'pemasukan') {
-        datasets.push(datasetMasuk);
-    } else {
-        datasets.push(datasetKeluar);
+    if (type === 'semua' || type === 'pemasukan') {
+        datasets.push({ label: 'Pemasukan', data: dataMasuk, borderColor: '#2ecc71', backgroundColor: 'rgba(46, 204, 113, 0.1)', fill: true, tension: 0.4 });
+    }
+    if (type === 'semua' || type === 'pengeluaran') {
+        datasets.push({ label: 'Pengeluaran', data: dataKeluar, borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.1)', fill: true, tension: 0.4 });
     }
 
     myLineChart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: labels.map(t => `Tgl ${t}`),
-            datasets: datasets // Masukkan dataset yg sudah dipilih di atas
-        },
+        data: { labels: lbls.map(t => `Tgl ${t}`), datasets: datasets },
         options: {
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { 
-                    display: (tipeView === 'semua'), // Munculkan label "Masuk/Keluar" cuma kalau pilih 'Semua'
-                    labels: { color: textColor }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            },
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: (type === 'semua'), labels: { color: textColor } } },
             scales: {
-                x: { 
-                    ticks: { color: textColor, font: { size: 10 } }, 
-                    grid: { display: false } 
-                },
-                y: { 
-                    ticks: { color: textColor, callback: v => (v/1000)+'k' }, 
-                    grid: { borderDash: [5,5], color: isDark ? '#333' : '#eee' } 
-                }
+                x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
+                y: { ticks: { color: textColor, callback: v => (v/1000)+'k' }, grid: { borderDash: [5,5], color: isDark ? '#333' : '#eee' } }
             }
         }
     });
 }
-// --- LANGGANAN (TAGIHAN RUTIN) ---
+
+// ===============================================
+// 5. MODAL & FUNGSI TOMBOL
+// ===============================================
+
 function pantauLangganan() {
     db.collection('langganan').onSnapshot(snapshot => {
         let html = '';
@@ -315,46 +326,30 @@ function pantauLangganan() {
 
 window.bukaModalTambahLangganan = () => {
     const select = document.getElementById('tglLangganan');
-    
-    // 🔥 PERBAIKAN: Cek apakah dropdown kosong? Jika iya, isi otomatis!
     if (select.options.length === 0) {
-        select.innerHTML = ''; // Bersihkan dulu biar aman
+        select.innerHTML = ''; 
         for(let i=1; i<=31; i++){
-            // Tambahkan opsi Tanggal 1 s.d 31
             const option = document.createElement('option');
             option.value = i;
             option.text = `Tanggal ${i}`;
             select.appendChild(option);
         }
     }
-
-    // Reset form input
     document.getElementById('namaLangganan').value = '';
     document.getElementById('biayaLangganan').value = '';
-    
-    // Tampilkan Modal
     new bootstrap.Modal(document.getElementById('modalTambahLangganan')).show();
 }
 
-// 🔥 FUNGSI UTAMA YANG TADI ERROR
 window.simpanLanggananBaru = () => {
     const nama = document.getElementById('namaLangganan').value;
     const biaya = parseInt(document.getElementById('biayaLangganan').value);
     const tgl = parseInt(document.getElementById('tglLangganan').value);
-    
-    // Debugging (Cek Console kalau error lagi)
-    console.log("Menyimpan...", nama, biaya, tgl);
-
     if(!nama || !biaya) return alert("Data kurang lengkap!");
-
     db.collection('langganan').add({
         nama: nama, biaya: biaya, tgl_jatuh_tempo: tgl,
         type: modeTab==='keluarga'?'keluarga':'pribadi', email_pemilik: currentUser.email, riwayat_bayar: []
     }).then(() => {
-        // Tutup modal
         bootstrap.Modal.getInstance(document.getElementById('modalTambahLangganan')).hide();
-    }).catch(err => {
-        alert("Gagal menyimpan: " + err.message);
     });
 }
 
@@ -374,13 +369,11 @@ window.bayarLangganan = (id, nama, biaya) => {
 }
 window.hapusLangganan = (id) => { if(confirm("Hapus?")) db.collection('langganan').doc(id).delete(); }
 
-// --- TABUNGAN & LAINNYA ---
 function pantauTabungan() {
     db.collection('tabungan_goals').onSnapshot(snapshot => {
         let html = '';
         const btnTambah = document.getElementById('btnTambahTabungan');
         if (modeTab === 'keluarga') { if(isAdmin) btnTambah.classList.remove('d-none'); else btnTambah.classList.add('d-none'); } else { btnTambah.classList.remove('d-none'); }
-
         snapshot.docs.forEach(doc => {
             const data = doc.data();
             if (modeTab === 'keluarga' && data.type !== 'keluarga') return;
@@ -402,10 +395,20 @@ window.simpanTabunganBaru = () => {
     db.collection('tabungan_goals').add({ nama: nama, target: target, tenor: tenor, terkumpul: 0, type: modeTab==='keluarga'?'keluarga':'pribadi', email_pemilik: currentUser.email, dibuat_pada: firebase.firestore.FieldValue.serverTimestamp() }).then(() => location.reload());
 }
 window.bukaModalSetorTabungan = (id) => {
-    db.collection('tabungan_goals').doc(id).get().then(doc => {
+    db.collection('tabungan_goals').doc(id).get().then((doc) => {
         if(!doc.exists) return; const data = doc.data();
         document.getElementById('idTabunganSetor').value = id; document.getElementById('labelNamaTabungan').innerText = data.nama;
         document.getElementById('infoTarget').innerText = `Target: Rp ${parseInt(data.target).toLocaleString()}`; document.getElementById('infoSisa').innerText = `Sisa: Rp ${(data.target-data.terkumpul).toLocaleString()}`; document.getElementById('barProgressTabungan').style.width = `${Math.min((data.terkumpul/data.target)*100,100)}%`;
+        
+        // LOGIKA TOMBOL HAPUS (Fix)
+        const btnGroup = document.getElementById('grupTombolAdmin');
+        const isOwner = (currentUser && data.email_pemilik === currentUser.email);
+        if (isAdmin || isOwner) {
+            btnGroup.classList.remove('d-none');
+        } else {
+            btnGroup.classList.add('d-none');
+        }
+
         const list = document.getElementById('listCicilan'); list.innerHTML = '';
         const cicilan = Math.ceil(data.target / (data.tenor||1)); let temp = data.terkumpul;
         for(let i=1; i<=(data.tenor||1); i++){
@@ -454,6 +457,44 @@ window.resetBudget = () => { if(confirm("Reset?")) db.collection('pengaturan').d
 function pantauBudget() { db.collection('pengaturan').doc(modeTab==='keluarga'?'budget_keluarga':'budget_'+currentUser.email).onSnapshot(doc=>{dataBudget=doc.exists?doc.data():{};renderBudgetProgress(currentPengeluaran);}); }
 function renderBudgetProgress(exp) {
     let h=''; ['Makan','Jajan','Transport','Belanja','Tagihan'].forEach(k=>{ if((dataBudget[k]||0)>0){ let p=Math.min(((exp[k]||0)/dataBudget[k])*100,100); h+=`<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="fw-bold">${k}</span><span class="text-muted">${(exp[k]||0).toLocaleString()} / ${dataBudget[k].toLocaleString()}</span></div><div class="progress rounded-pill bg-light border" style="height:12px"><div class="progress-bar ${p>90?'bg-danger':(p>75?'bg-warning':'bg-success')} rounded-pill" style="width:${p}%"></div></div></div>`; } }); document.getElementById('containerBudget').innerHTML=h||'<p class="text-center small text-muted">Belum ada anggaran.</p>';
+}
+
+// ==========================================
+// 6. FUNGSI EDIT & HAPUS (INI YANG TADI HILANG)
+// ==========================================
+
+window.bukaModalEdit = (id) => { 
+    db.collection('transaksi').doc(id).get().then(doc => { 
+        if(doc.exists) { 
+            const d = doc.data(); 
+            document.getElementById('editId').value = id; 
+            document.getElementById('editTipe').value = d.tipe; 
+            if(typeof updatePilihanKategori === 'function') {
+                updatePilihanKategori('editTipe', 'editKategori'); 
+            }
+            setTimeout(()=>{ 
+                document.getElementById('editKategori').value = d.kategori; 
+            }, 100); 
+            document.getElementById('editJumlah').value = d.jumlah; 
+            document.getElementById('editKeterangan').value = d.keterangan; 
+            new bootstrap.Modal(document.getElementById('modalEditTransaksi')).show(); 
+        } 
+    }); 
+}
+
+window.updateTransaksi = () => { 
+    db.collection('transaksi').doc(document.getElementById('editId').value).update({ 
+        tipe: document.getElementById('editTipe').value, 
+        kategori: document.getElementById('editKategori').value, 
+        jumlah: parseInt(document.getElementById('editJumlah').value), 
+        keterangan: document.getElementById('editKeterangan').value 
+    }).then(()=>location.reload()); 
+}
+
+window.hapusData = (id) => { 
+    if(confirm("Hapus data ini permanen?")) {
+        db.collection('transaksi').doc(id).delete();
+    }
 }
 
 // Form Transaksi

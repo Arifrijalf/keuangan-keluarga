@@ -4,8 +4,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-    /* --- LIGHT MODE --- */
-    --bg-body: #f4f7f6; 
+    /* --- LIGHT MODE (Updated: Lebih Teduh) --- */
+    /* Mengganti background silau dengan Cool Gray profesional */
+    --bg-body: #eef2f6; 
     --text-main: #2d3436;
     --card-bg: #ffffff;
     --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
@@ -73,14 +74,25 @@ body {
 }
 
 /* =========================================
-   4. BOOTSTRAP OVERRIDES
+   4. BOOTSTRAP OVERRIDES (MODERN LOOK)
    ========================================= */
 /* Input Form */
 .form-control, .form-select {
-    background-color: var(--input-bg) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-main) !important;
+    padding: 12px 15px;
     border-radius: 12px;
+    border: 2px solid transparent;
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Efek Fokus (Glowing) */
+.form-control:focus, .form-select:focus {
+    background-color: var(--card-bg) !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    outline: none;
 }
 
 /* Modal */
@@ -89,19 +101,20 @@ body {
     color: var(--text-main);
     border: 1px solid var(--border-color);
 }
+
+/* Tombol Close Modal (Filter warna otomatis) */
 .btn-close { filter: var(--btn-close-filter); }
-
-/* Tombol Tema Animasi */
-#btnTheme:active { transform: rotate(360deg); transition: 0.5s; }
-
-/* Filter Tombol Close Modal saat Dark Mode */
 body.dark-mode { --btn-close-filter: invert(1) grayscale(100%) brightness(200%); }
 body:not(.dark-mode) { --btn-close-filter: none; }
 
+/* Animasi Tombol Tema */
+#btnTheme:active { transform: rotate(360deg); transition: 0.5s; }
+
 /* =========================================
-   5. ⚠️ FORCED DARK MODE FIXES ⚠️
+   5. ⚠️ DARK MODE FIXES (PERBAIKAN UTAMA) ⚠️
    ========================================= */
-/* Memaksa teks jadi terang di Mode Gelap */
+
+/* 1. Teks Umum jadi Terang */
 body.dark-mode .card-header, 
 body.dark-mode .card-title, 
 body.dark-mode .card-text,
@@ -113,37 +126,74 @@ body.dark-mode div {
     color: #e0e0e0 !important;
 }
 
-body.dark-mode .text-muted {
-    color: #b0b0b0 !important;
-}
+body.dark-mode .text-muted { color: #b0b0b0 !important; }
+body.dark-mode .text-dark { color: #f8f9fa !important; }
 
-body.dark-mode .text-dark {
-    color: #f8f9fa !important;
-}
-
-/* Pengecualian: Badge dan Tombol */
-body.dark-mode .badge, 
-body.dark-mode .btn {
-    color: inherit; 
-}
-body.dark-mode .btn-warning,
+/* 2. PERBAIKAN TOMBOL TEMA (MATAHARI) */
+/* Pastikan ikon matahari (text-warning) tetap kuning, JANGAN hitam */
 body.dark-mode .text-warning {
-    color: #000 !important;
+    color: #ffc107 !important; /* Kuning Terang */
 }
+
+/* Hanya tombol dengan background kuning yang teksnya hitam */
+body.dark-mode .btn-warning {
+    color: #000000 !important;
+}
+
 body.dark-mode .btn-light {
-    color: #000 !important;
+    color: #000000 !important;
 }
+
+/* 3. Modal & Card Background (Fix silau di dark mode) */
+body.dark-mode .bg-light {
+    background-color: #2c2c2c !important; /* Abu gelap */
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* 4. Input Placeholder (Fix tulisan "Rp 0" hilang) */
+body.dark-mode .form-control::placeholder {
+    color: #bbbbbb !important; 
+    opacity: 1;
+}
+
+/* 5. Input & Dropdown Dark Mode */
+body.dark-mode .form-control, 
+body.dark-mode .form-select {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444;
+    color: #ffffff !important;
+}
+/* Ikon panah dropdown putih */
+body.dark-mode .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* 6. List Riwayat (Agar tidak putih mentereng) */
+.list-group-item {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border-color: var(--border-color);
+    transition: 0.3s;
+}
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333;
+}
+
+/* Pastikan Tombol di List bisa diklik */
+.list-group-item .text-end { position: relative; z-index: 10; }
+.list-group-item button { position: relative; z-index: 20; cursor: pointer; }
 
 /* =========================================
-   9. LOGIN SCREEN KEREN (Glassmorphism)
+   6. LOGIN SCREEN KEREN
    ========================================= */
 #loginScreen {
     background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), 
                 url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1632&auto=format&fit=crop');
-    
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
 }
 
 #loginScreen .card {
@@ -159,71 +209,8 @@ body.dark-mode .btn-light {
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-/* =========================================
-   10. INPUT FORM MODERN & KEREN (FIX DARK MODE)
-   ========================================= */
-
-/* 1. Desain Dasar Input (Lebih Luas & Bulat) */
-.form-control, .form-select {
-    padding: 12px 15px;         /* Memberi ruang napas di dalam kotak */
-    border-radius: 12px;        /* Sudut membulat (tidak kaku) */
-    border: 2px solid transparent; /* Border transparan untuk efek halus */
-    background-color: var(--input-bg) !important;
-    color: var(--text-main) !important;
-    transition: all 0.3s ease;  /* Animasi halus saat diklik */
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* Sedikit bayangan di dalam */
-}
-
-/* 2. Efek Saat Diklik (Fokus) - Glowing */
-.form-control:focus, .form-select:focus {
-    background-color: var(--card-bg) !important;
-    border-color: #667eea !important; /* Warna Ungu/Biru Tema */
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2); /* Efek cahaya (Glow) di luar */
-    outline: none;
-}
-
-/* 3. PERBAIKAN DARK MODE (Penting!) */
-
-/* Mengatur warna background input di Dark Mode agar tidak terlalu hitam pekat */
-body.dark-mode .form-control, 
-body.dark-mode .form-select {
-    background-color: #2a2a2a !important; /* Abu-abu tua elegan */
-    border: 1px solid #444; /* Garis tepi tipis agar terlihat batasnya */
-    color: #ffffff !important; /* Warna teks saat mengetik: Putih Terang */
-}
-
-/* Mengatur warna PLACEHOLDER (Tulisan "Rp 0" atau "Catatan...") */
-body.dark-mode .form-control::placeholder {
-    color: #bbbbbb !important; /* Abu-abu terang (Jelas Terbaca) */
-    opacity: 1;
-}
-
-/* Fix untuk Dropdown di Dark Mode */
-body.dark-mode .form-select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
-    /* Ikon panah dropdown jadi putih */
-}
-
-/* 4. Label di atas input agar lebih pop-up */
-label.small.text-muted {
-    font-weight: 600;
-    margin-bottom: 5px;
-    display: block;
-}
-
-/* Di Dark Mode, ubah warna label agar tidak mati */
-body.dark-mode label.small.text-muted {
-    color: #a0a0a0 !important;
-}
-
-/* PAKSA TULISAN DROPDOWN JADI PUTIH DI MODE GELAP */
-body.dark-mode #tglLangganan, 
-body.dark-mode #tglLangganan option {
-    color: #ffffff !important;       /* Tulisan Putih */
-    background-color: #2a2a2a !important; /* Latar Abu Gelap */
-}
-
-/* Hapus background bawaan yang bikin konflik */
-#tglLangganan {
-    background-image: none !important; 
+#loginScreen .form-control {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff !important;
 }
