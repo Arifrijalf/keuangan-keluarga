@@ -1,0 +1,216 @@
+/* =========================================
+   1. IMPORT FONT & VARIABLES
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    /* --- LIGHT MODE (Updated: Lebih Teduh) --- */
+    /* Mengganti background silau dengan Cool Gray profesional */
+    --bg-body: #eef2f6; 
+    --text-main: #2d3436;
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    --primary-gradient: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+    --navbar-bg: #ffffff;
+    --navbar-text: #2d3436;
+    --input-bg: #f8f9fa;
+    --border-color: #e9ecef;
+}
+
+/* --- DARK MODE --- */
+body.dark-mode {
+    --bg-body: #121212; 
+    --text-main: #e0e0e0; /* Putih Gading */
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --primary-gradient: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
+    --navbar-bg: #1e1e1e;
+    --navbar-text: #ffffff;
+    --input-bg: #2c2c2c;
+    --border-color: #333333;
+}
+
+/* =========================================
+   2. GLOBAL STYLES
+   ========================================= */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    transition: 0.3s;
+}
+.navbar-brand, .nav-link, .navbar i { 
+    color: var(--navbar-text) !important; 
+}
+
+/* =========================================
+   3. CARD STYLING
+   ========================================= */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    color: var(--text-main); 
+}
+
+/* Kartu Saldo Utama (Biru/Gradient) */
+.card-saldo-utama {
+    background: var(--primary-gradient);
+    color: white !important;
+    border: none;
+}
+.card-saldo-utama h1, 
+.card-saldo-utama h6, 
+.card-saldo-utama small { 
+    color: white !important; 
+}
+
+/* =========================================
+   4. BOOTSTRAP OVERRIDES (MODERN LOOK)
+   ========================================= */
+/* Input Form */
+.form-control, .form-select {
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Efek Fokus (Glowing) */
+.form-control:focus, .form-select:focus {
+    background-color: var(--card-bg) !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    outline: none;
+}
+
+/* Modal */
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+/* Tombol Close Modal (Filter warna otomatis) */
+.btn-close { filter: var(--btn-close-filter); }
+body.dark-mode { --btn-close-filter: invert(1) grayscale(100%) brightness(200%); }
+body:not(.dark-mode) { --btn-close-filter: none; }
+
+/* Animasi Tombol Tema */
+#btnTheme:active { transform: rotate(360deg); transition: 0.5s; }
+
+/* =========================================
+   5. ⚠️ DARK MODE FIXES (PERBAIKAN UTAMA) ⚠️
+   ========================================= */
+
+/* 1. Teks Umum jadi Terang */
+body.dark-mode .card-header, 
+body.dark-mode .card-title, 
+body.dark-mode .card-text,
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+body.dark-mode span,
+body.dark-mode label,
+body.dark-mode div {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .text-muted { color: #b0b0b0 !important; }
+body.dark-mode .text-dark { color: #f8f9fa !important; }
+
+/* 2. PERBAIKAN TOMBOL TEMA (MATAHARI) */
+/* Pastikan ikon matahari (text-warning) tetap kuning, JANGAN hitam */
+body.dark-mode .text-warning {
+    color: #ffc107 !important; /* Kuning Terang */
+}
+
+/* Hanya tombol dengan background kuning yang teksnya hitam */
+body.dark-mode .btn-warning {
+    color: #000000 !important;
+}
+
+body.dark-mode .btn-light {
+    color: #000000 !important;
+}
+
+/* 3. Modal & Card Background (Fix silau di dark mode) */
+body.dark-mode .bg-light {
+    background-color: #2c2c2c !important; /* Abu gelap */
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* 4. Input Placeholder (Fix tulisan "Rp 0" hilang) */
+body.dark-mode .form-control::placeholder {
+    color: #bbbbbb !important; 
+    opacity: 1;
+}
+
+/* 5. Input & Dropdown Dark Mode */
+body.dark-mode .form-control, 
+body.dark-mode .form-select {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444;
+    color: #ffffff !important;
+}
+/* Ikon panah dropdown putih */
+body.dark-mode .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* 6. List Riwayat (Agar tidak putih mentereng) */
+.list-group-item {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border-color: var(--border-color);
+    transition: 0.3s;
+}
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #333;
+}
+
+/* Pastikan Tombol di List bisa diklik */
+.list-group-item .text-end { position: relative; z-index: 10; }
+.list-group-item button { position: relative; z-index: 20; cursor: pointer; }
+
+/* =========================================
+   6. LOGIN SCREEN KEREN
+   ========================================= */
+#loginScreen {
+    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), 
+                url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1632&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+}
+
+#loginScreen .card {
+    background: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+#loginScreen .card h1 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+#loginScreen .form-control {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff !important;
+}

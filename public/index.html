@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keuangan Keluarga</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+
+    <div id="loginScreen" class="container vh-100 d-flex justify-content-center align-items-center">
+        <div class="card p-5 shadow-lg border-0 text-center" style="border-radius: 20px; max-width: 400px; width: 100%;">
+            <h1 class="mb-4 fw-bold">🔐<br>Keuangan<br>Keluarga</h1>
+            <button class="btn btn-light btn-lg shadow rounded-pill px-4 fw-bold text-primary" onclick="loginGoogle()">
+                <i class="bi bi-google me-2"></i> Masuk Google
+            </button>
+        </div>
+    </div>
+
+    <div id="appScreen" class="d-none">
+        
+        <nav class="navbar shadow-sm sticky-top mb-4 py-3">
+            <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
+                <span class="navbar-brand mb-0 h1 fw-bold fs-4">
+                    <i class="bi bi-wallet2 text-primary me-2"></i>Keuangan
+                </span>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="btnTheme" class="btn btn-link text-decoration-none fs-5 p-0 border-0" onclick="toggleDarkMode()">
+                        <i id="iconTheme" class="bi bi-moon-stars-fill text-primary"></i>
+                    </button>
+                    <div class="vr mx-1 opacity-25"></div> 
+                    <img id="fotoUser" src="" class="rounded-circle border border-2 border-primary p-1" width="38" height="38" style="object-fit: cover;">
+                    <button onclick="logout()" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 ms-1">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-md-inline ms-1">Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+            
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm bg-white rounded-4 p-1 border">
+                <li class="nav-item"><button class="nav-link active fw-bold rounded-4 py-2" id="tabKeluarga" onclick="gantiTab('keluarga')">👨‍👩‍👧‍👦 Kas Keluarga</button></li>
+                <li class="nav-item"><button class="nav-link fw-bold rounded-4 py-2" id="tabPribadi" onclick="gantiTab('pribadi')">👤 Kas Pribadi</button></li>
+            </ul>
+
+            <div class="mb-4">
+                <select id="filterDompet" class="form-select form-select-lg border-0 shadow-sm fw-bold text-center text-primary" onchange="refreshTampilan()">
+                    </select>
+            </div>
+
+            <div id="areaTransfer" class="d-grid gap-2 mb-4 d-none">
+                <button class="btn btn-primary shadow fw-bold py-3 rounded-4" onclick="bukaModalSetorKas()">
+                    <i class="bi bi-send-fill me-2"></i> Setor ke Kas Keluarga 💸
+                </button>
+            </div>
+
+            <div class="card card-saldo-utama text-center mb-4 shadow border-0">
+                <div class="card-body py-4">
+                    <small id="welcomeText" class="text-white-50 fw-bold"></small>
+                    <h6 class="text-white-50 mt-2" id="judulSaldo">Sisa Saldo</h6>
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                        <h1 class="display-4 fw-bold mb-0" id="tampilanSaldo">Rp 0</h1>
+                        <button id="btnEditSaldo" class="btn btn-sm btn-light text-primary rounded-circle shadow-sm d-none" onclick="bukaModalSaldo()"><i class="bi bi-pencil-fill"></i></button>
+                    </div>
+                    <small class="text-white-50" id="infoSaldoAwal">(Saldo Awal: Rp 0)</small>
+                    <div class="mt-4" style="position: relative; height:220px; width:100%">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold py-3 border-0 d-flex justify-content-between align-items-center">
+                    <span class="fs-5"><i class="bi bi-activity text-danger me-2"></i>Tren Harian</span>
+                    <select id="tipeGrafik" class="form-select form-select-sm border-0 bg-light fw-bold shadow-sm" style="width: 130px;" onchange="refreshTampilan()">
+                        <option value="semua" selected>📊 Semua</option>
+                        <option value="pengeluaran">🔴 Keluar</option>
+                        <option value="pemasukan">🟢 Masuk</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                    <p class="text-center text-muted small mt-2 fst-italic">Data per tanggal bulan ini</p>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-calendar-check text-primary me-2"></i>Tagihan Rutin</span>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="bukaModalTambahLangganan()"><i class="bi bi-plus-lg"></i> Tambah</button>
+                </div>
+                <div class="card-body pt-0"><div id="containerLangganan" class="row g-2"></div></div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-piggy-bank text-warning me-2"></i>Target Tabungan</span>
+                    <button id="btnTambahTabungan" class="btn btn-sm btn-warning text-dark fw-bold shadow-sm rounded-pill px-3" onclick="bukaModalTambahTabungan()"><i class="bi bi-plus-lg"></i> Target Baru</button>
+                </div>
+                <div class="card-body pt-0"><div id="containerTabungan" class="row g-3"></div></div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold d-flex justify-content-between align-items-center py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-graph-up-arrow text-info me-2"></i>Batas Pengeluaran</span>
+                    <button id="btnAturBudget" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" onclick="bukaModalBudget()"><i class="bi bi-gear-fill me-1"></i> Atur</button>
+                </div>
+                <div class="card-body pt-0"><div id="containerBudget"><p class="text-center small text-muted fst-italic py-3">Belum ada data anggaran.</p></div></div>
+            </div>
+
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-transparent fw-bold py-3 border-0">
+                    <span class="fs-5"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Catat Transaksi</span>
+                </div>
+                <div class="card-body pt-0">
+                    <form id="formTransaksi">
+                        <div class="row g-3">
+                            <div class="col-6"><label class="small text-muted mb-1">Tipe</label><select class="form-select border-0 bg-light fw-bold" id="tipe"><option value="pengeluaran">🔴 Keluar</option><option value="pemasukan">🟢 Masuk</option></select></div>
+                            <div class="col-6"><label class="small text-muted mb-1">Sumber Dana</label><select class="form-select border-0 bg-light fw-bold" id="inputDompet"></select></div>
+                            <div class="col-12"><label class="small text-muted mb-1">Kategori</label><select class="form-select border-0 bg-light fw-bold" id="kategori"></select></div>
+                            <div class="col-12"><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light py-3" id="jumlah" placeholder="Rp 0" required style="font-size: 1.2rem; font-weight: bold;"></div>
+                            <div class="col-12"><input type="text" class="form-control border-0 bg-light" id="keterangan" placeholder="Catatan transaksi..." required></div>
+                            <div class="col-12"><button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-4 shadow-sm">Simpan Transaksi</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+                <h6 class="text-muted mb-0 fw-bold">Riwayat Transaksi</h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-success shadow-sm" onclick="bukaModalExport()" title="Download Excel">
+                        <i class="bi bi-file-earmark-excel-fill me-1"></i>Export
+                    </button>
+                    
+                    <select id="filterBulan" class="form-select form-select-sm border-0 bg-white shadow-sm" onchange="refreshTampilan()" style="width: 80px;">
+                        <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option><option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
+                    </select>
+                    <select id="filterTahun" class="form-select form-select-sm border-0 bg-white shadow-sm" onchange="refreshTampilan()" style="width: 80px;">
+                        <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+                    </select>
+                </div>
+            </div>
+            <ul class="list-group shadow-sm border-0 mb-5" id="daftarTransaksi"></ul>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalExport" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-success-subtle">
+                    <h5 class="modal-title fw-bold text-success-emphasis"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Download Laporan</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small text-center mb-3">Pilih periode laporan yang ingin didownload.</p>
+                    
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <label class="small fw-bold mb-1">Bulan</label>
+                            <select id="exportBulan" class="form-select border-0 bg-light" onchange="renderPreviewExport()">
+                                <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option><option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option><option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option><option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold mb-1">Tahun</label>
+                            <select id="exportTahun" class="form-select border-0 bg-light" onchange="renderPreviewExport()">
+                                <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3 text-center border-bottom pb-2">Preview Data</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Pemasukan:</span>
+                                <span class="fw-bold text-success" id="prevMasuk">Rp 0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Pengeluaran:</span>
+                                <span class="fw-bold text-danger" id="prevKeluar">Rp 0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                                <span class="fw-bold">Total Transaksi:</span>
+                                <span class="fw-bold text-primary" id="prevCount">0 Data</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-success w-100 rounded-pill fw-bold py-2" onclick="downloadFileExport()">
+                        <i class="bi bi-download me-2"></i>Download .CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold text-warning">✏️ Edit</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editId"><select class="form-select mb-3 bg-light border-0" id="editTipe"><option value="pengeluaran">🔴 Keluar</option><option value="pemasukan">🟢 Masuk</option></select><select class="form-select mb-3 bg-light border-0" id="editDompet"></select><select class="form-select mb-3 bg-light border-0" id="editKategori"></select><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control mb-3 bg-light border-0" id="editJumlah"><input type="text" class="form-control bg-light border-0" id="editKeterangan"></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 rounded-pill fw-bold" onclick="updateTransaksi()">Update</button></div></div></div></div>
+    
+    <div class="modal fade" id="modalTambahLangganan" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Tagihan Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="small text-muted">Nama Tagihan</label><input type="text" id="namaLangganan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Biaya (Rp)</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="biayaLangganan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Tanggal Jatuh Tempo</label><select id="tglLangganan" class="form-select border-0 bg-light fw-bold"></select></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="simpanLanggananBaru()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalTambahTabungan" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Target Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="small text-muted">Nama Target</label><input type="text" id="namaTabungan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Total (Rp)</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="targetTabungan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Rencana</label><select id="pilihanTenor" class="form-select border-0 bg-light fw-bold mb-2" onchange="cekTenorManual()"><option value="1">1 Bulan</option><option value="3">3 Bulan</option><option value="6">6 Bulan</option><option value="12" selected>12 Bulan</option><option value="manual">Manual</option></select><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="inputTenorManual" class="form-control border-0 bg-warning-subtle d-none"></div></div><div class="modal-footer border-0"><button class="btn btn-success w-100 rounded-pill fw-bold" onclick="simpanTabunganBaru()">Buat Target</button></div></div></div></div>
+    <div class="modal fade" id="modalSetorTabungan" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow"><div class="modal-header border-0 bg-primary-subtle"><h5 class="modal-title fw-bold" id="labelNamaTabungan">Detail</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="idTabunganSetor"><div class="d-flex justify-content-between text-muted small mb-3"><span id="infoTarget">Target: Rp 0</span><span id="infoSisa">Kurang: Rp 0</span></div><div class="progress mb-4" style="height: 20px;"><div id="barProgressTabungan" class="progress-bar bg-success" style="width: 0%"></div></div><div id="listCicilan" class="d-grid gap-2"></div><div class="mt-4 pt-3 border-top text-center"><small class="text-muted d-block mb-2">Setor manual:</small><div class="input-group"><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="inputSetoranManual" class="form-control" placeholder="Rp"><button class="btn btn-outline-primary" onclick="simpanSetoranManual()">Kirim</button></div></div></div><div class="modal-footer border-0 d-flex justify-content-between"><div id="grupTombolAdmin" class="d-none"><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="hapusTabungan()"><i class="bi bi-trash"></i></button><button class="btn btn-outline-warning btn-sm rounded-pill" onclick="resetTabungan()"><i class="bi bi-arrow-counterclockwise"></i></button></div><button class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Tutup</button></div></div></div></div>
+    <div class="modal fade" id="modalSaldoAwal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Atur Saldo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="inputSaldoAwal" class="form-control form-control-lg bg-light border-0" placeholder="Rp"></div><div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill" onclick="simpanSaldoAwal()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalAturBudget" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold text-info">🎯 Budget</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formBudget"><div class="mb-3"><label class="small text-muted">Makan</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light" id="budgetMakan"></div><div class="mb-3"><label class="small text-muted">Jajan</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light" id="budgetJajan"></div><div class="mb-3"><label class="small text-muted">Transport</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light" id="budgetTransport"></div><div class="mb-3"><label class="small text-muted">Belanja</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light" id="budgetBelanja"></div><div class="mb-3"><label class="small text-muted">Tagihan</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control border-0 bg-light" id="budgetTagihan"></div></form></div><div class="modal-footer border-0 d-flex justify-content-between"><button id="btnResetBudget" class="btn btn-outline-danger rounded-pill" onclick="resetBudget()">Reset</button><button class="btn btn-info text-white fw-bold rounded-pill px-4" onclick="simpanBudget()">Simpan</button></div></div></div></div>
+    <div class="modal fade" id="modalSetorKas" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0 bg-primary-subtle"><h5 class="modal-title fw-bold text-primary-emphasis">Setor ke Kas Keluarga</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="text-center text-muted small mb-4">Pindah uang dari Pribadi ke Keluarga.</p><div class="mb-3"><label class="small text-muted">Nominal (Rp)</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="jumlahSetorKas" class="form-control form-control-lg border-0 bg-light fw-bold"></div><div class="mb-3"><label class="small text-muted">Catatan</label><input type="text" id="ketSetorKas" class="form-control border-0 bg-light" placeholder="Contoh: Iuran Bulanan"></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100 fw-bold rounded-pill" onclick="simpanSetorKas()">Kirim Uang 💸</button></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
