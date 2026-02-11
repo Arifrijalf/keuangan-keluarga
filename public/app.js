@@ -169,7 +169,7 @@ window.gantiTab = (mode) => {
         trf.classList.add('d-none'); 
     } else {
         btnK.classList.remove('active'); btnP.classList.add('active');
-        document.getElementById('judulSaldo').innerText = "Sisa Saldo Pribadi";
+        document.getElementById('judulSaldo').innerText = "Sisa Saldo";
         trf.classList.remove('d-none');
     }
     pantauBudget(); refreshTampilan();
