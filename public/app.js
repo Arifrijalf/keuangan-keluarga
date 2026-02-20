@@ -22,7 +22,8 @@ const FAMILY_EMAILS = [
     "ahiwjw18@gmail.com",
     "jasarfa1@gmail.com",
     "mamanyanazief@gmail.com",
-    "aakuntest2007@gmail.com"
+    "aakuntest2007@gmail.com",
+    "tashaarizka@icloud.com"
 ];
 
 firebase.initializeApp(firebaseConfig);
