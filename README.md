@@ -19,7 +19,7 @@
 
 ---
 
-## 🌟 Fitur Kece (Key Features)
+## 🌟 Key Features
 
 Aplikasi ini dibikin buat bantu kamu *tracking* uang masuk dan keluar dengan gampang, plus fitur-fitur super asyik:
 
