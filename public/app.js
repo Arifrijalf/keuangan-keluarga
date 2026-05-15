@@ -84,18 +84,27 @@ window.toggleAuthMode = () => {
     isRegisterMode = !isRegisterMode;
     document.getElementById('authTitle').innerText = isRegisterMode ? 'Daftar Akun' : 'Masuk';
     document.getElementById('btnAuth').innerText = isRegisterMode ? 'Daftar Sekarang' : 'Masuk Sekarang';
-    document.getElementById('authToggleText').innerText = isRegisterMode ? 'Sudah punya akun?' : 'Belum punya akun?';
-    document.getElementById('authLink').innerText = isRegisterMode ? 'Masuk di sini' : 'Daftar di sini';
     
+    // Teks diperpendek sesuai permintaan
+    document.getElementById('authToggleText').innerText = isRegisterMode ? 'Sudah punya akun?' : 'Belum punya akun?';
+    document.getElementById('authLink').innerText = isRegisterMode ? (isRegisterMode ? 'Masuk' : 'Daftar') : 'Daftar';
+    
+    // Logika tambahan agar tombol toggle selalu sinkron
+    if (isRegisterMode) {
+        document.getElementById('authLink').innerText = "Masuk";
+    } else {
+        document.getElementById('authLink').innerText = "Daftar";
+    }
+
     const groupNama = document.getElementById('groupNama');
     const groupLupa = document.getElementById('groupLupaPassword');
 
     if(isRegisterMode) {
         groupNama.classList.remove('d-none');
-        groupLupa.classList.add('d-none'); // Sembunyikan 'Lupa Password' saat DAFTAR
+        groupLupa.classList.add('d-none');
     } else {
         groupNama.classList.add('d-none');
-        groupLupa.classList.remove('d-none'); // Tampilkan 'Lupa Password' saat LOGIN
+        groupLupa.classList.remove('d-none');
     }
 }
 

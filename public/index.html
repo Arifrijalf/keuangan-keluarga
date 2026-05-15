@@ -34,25 +34,26 @@
                 </small>
             </div>
             
-    <div class="mb-3 text-start">
-        <label class="small fw-bold text-white">Password</label>
+        <div class="mb-2 text-start"> <label class="small fw-bold text-white">Password</label>
         <input type="password" id="authPassword" class="form-control" placeholder="Minimal 6 karakter">
         
         <div id="groupLupaPassword" class="text-end mt-1">
-            <a href="javascript:void(0)" onclick="resetPassword()" class="text-info text-decoration-none" style="font-size: 0.75rem;">
+            <button type="button" onclick="resetPassword()" class="btn btn-link p-0 text-info text-decoration-none shadow-none" style="font-size: 0.75rem; border: none; background: none;">
                 Lupa Password?
-            </a>
+            </button>
         </div>
     </div>
 
-            <button id="btnAuth" class="btn btn-primary w-100 rounded-pill fw-bold py-2 mb-3 shadow-sm" onclick="handleAuth()">
-                Masuk Sekarang
-            </button>
+    <button id="btnAuth" class="btn btn-primary w-100 rounded-pill fw-bold py-2 mb-2 shadow-sm" onclick="handleAuth()">
+        Masuk Sekarang
+    </button>
 
-            <p class="small mb-4 text-white">
-                <span id="authToggleText">Belum punya akun?</span> 
-                <a href="javascript:void(0)" onclick="toggleAuthMode()" id="authLink" class="text-info text-decoration-none fw-bold">Daftar di sini</a>
-            </p>
+    <p class="small mb-4 text-white">
+        <span id="authToggleText">Belum punya akun?</span> 
+        <button type="button" onclick="toggleAuthMode()" id="authLink" class="btn btn-link p-0 text-info text-decoration-none fw-bold shadow-none ms-1" style="border: none; background: none; vertical-align: baseline;">
+            Daftar
+        </button>
+    </p>
 
             <div class="d-flex align-items-center mb-4">
                 <hr class="flex-grow-1 border-white opacity-50">

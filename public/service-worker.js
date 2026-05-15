@@ -1,4 +1,4 @@
-const CACHE_NAME = 'keuangan-keluarga-v2';
+const CACHE_NAME = 'keuangan-keluarga-v3';
 const urlsToCache = [
     './',
     './index.html',
