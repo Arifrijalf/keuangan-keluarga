@@ -1,6 +1,7 @@
+cat << 'EOF' > README.md
 # 💸 Keuangan Keluarga App ✨
 
-> Aplikasi PWA pintar buat ngatur *cash flow* keluarga dan pribadi. *No more* drama uang hilang kemana! 🚀
+> Aplikasi PWA pintar untuk mengelola *cash flow* keluarga dan pribadi. Kini lebih aman dengan sistem autentikasi mandiri dan pembatasan akses cerdas! 🚀
 
 ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
@@ -17,30 +18,39 @@
   <img src="./public/DarkMode.png" width="150" hspace="20" />
 </div>
 
-
-
 ---
 
-## 🌟 Key Features
+## 🌟 Fitur Unggulan Terupdate
 
-Aplikasi ini dibikin buat bantu kamu *tracking* uang masuk dan keluar dengan gampang, plus fitur-fitur super asyik:
+Aplikasi ini telah ditingkatkan dengan sistem keamanan berlapis untuk menjaga privasi data keuangan kamu:
 
-- 👨‍👩‍👧‍👦 **Split Mode (Keluarga vs Pribadi)**: Atur kas keluarga (bisa diakses admin & anggota) atau kas pribadimu sendiri. Aman dan terpisah!
-- 🎨 **Aesthetic Dark Mode**: Transisi *smooth* ke mode gelap. *Save your battery & your eyes!* 🌙
-- 📊 **Smart Dashboard**: Visualisasi data pengeluaran dan pemasukan harian pakai **Chart.js** (Doughnut & Line Chart).
-- 🎯 **Savings Goal (Tabungan)**: Punya *wishlist* beli HP atau liburan? Bikin target tabungan dan pantau *progress*-nya.
-- 📅 **Routine Bills (Tagihan Rutin)**: Catat langganan Netflix, Spotify, atau tagihan bulanan biar nggak lupa dan nggak kena denda.
-- 📱 **PWA Ready**: Bisa di-install langsung ke *homescreen* HP-mu layaknya aplikasi bawaan tanpa harus masuk PlayStore.
-- 📥 **Export to CSV**: Tinggal klik, langsung ke-download laporan bulanan dalam format Excel/CSV. 
-- 🔒 **Secure Google Login**: Masuk gampang & aman pakai akun Google berkat Firebase Auth.
+- 🔐 **Multi-Auth System**: Masuk lebih fleksibel menggunakan akun **Email & Password** atau tetap menggunakan **Google Login**.
+- 🛡️ **Smart Access Control**: 
+    - **Anggota Keluarga**: Mendapat akses penuh ke Kas Keluarga, Kas Pribadi, dan fitur transfer.
+    - **Tamu/Anggota Baru**: Hanya dapat melihat dan mengelola Kas Pribadi mereka sendiri. Tab Kas Keluarga disembunyikan secara otomatis untuk menjaga privasi.
+- 📧 **Security Verification**: Dilengkapi dengan **Verifikasi Email** saat pendaftaran dan fitur **Reset Password** untuk memulihkan akun yang lupa kata sandi.
+- ⚡ **Real-time Validation**: Validasi format email secara langsung saat mengetik untuk pengalaman pengguna yang lebih *smooth*.
+- 👨‍👩‍👧‍👦 **Admin Privileges**: Akun Admin memiliki wewenang khusus untuk mengatur saldo awal keluarga dan mengelola target tabungan bersama.
+- 🎨 **Glassmorphism UI**: Tampilan layar login yang modern dengan efek blur transparan yang aesthetic.
+- 📱 **PWA Ready**: Bisa di-install langsung ke *homescreen* HP layaknya aplikasi native melalui browser.
+- 📥 **Export to CSV**: Download laporan bulanan dalam format CSV yang rapi untuk keperluan audit mandiri.
 
 ---
 
 ## 🛠️ Tech Stack
 
-Dibuat dengan teknologi web modern:
-- **Frontend**: HTML5, CSS3 (Custom Variables for Theming), Vanilla JavaScript.
+Dibuat dengan teknologi web modern untuk performa maksimal:
+- **Frontend**: HTML5, CSS3 (Custom Variables & Glassmorphism), Vanilla JavaScript.
 - **UI Framework**: Bootstrap 5.3 + Bootstrap Icons.
-- **Charts**: Chart.js.
-- **Backend & Database**: Firebase (Auth, Firestore, Hosting).
-- **Architecture**: Progressive Web App (PWA) dengan Service Worker.
+- **Charts**: Chart.js untuk visualisasi tren harian dan kategori.
+- **Backend & Database**: Firebase (Authentication, Firestore NoSQL, Hosting).
+- **Security**: Implementasi *API Key restrictions* dan *Client-side routing protection*.
+
+---
+
+### Cara Install di HP (PWA)
+1. Buka link aplikasi di browser (Chrome/Edge).
+2. Klik ikon **Tiga Titik** di pojok kanan atas.
+3. Pilih **"Instal Aplikasi"** atau **"Tambahkan ke Layar Utama"**.
+4. Aplikasi siap digunakan langsung dari menu HP kamu!
+EOF
