@@ -16,14 +16,15 @@ const LIST_ADMIN = [
     "jasarfa1@gmail.com"
 ];
 
-// DAFTAR KELUARGA YANG DIIZINKAN LOGIN
+// DAFTAR KELUARGA (Untuk Membuka Fitur Kas Keluarga)
 const FAMILY_EMAILS = [
     "arifrijalfadhilah@gmail.com",
     "ahiwjw18@gmail.com",
     "jasarfa1@gmail.com",
     "mamanyanazief@gmail.com",
     "aakuntest2007@gmail.com",
-    "tasha.arizka22@gmail.com"
+    "tasha.arizka22@gmail.com",
+    "ochelogistics@gmail.com"
 ];
 
 firebase.initializeApp(firebaseConfig);
@@ -36,6 +37,8 @@ const provider = new firebase.auth.GoogleAuthProvider();
 // ===============================================
 let currentUser = null; 
 let isAdmin = false; 
+let isFamilyMember = false; // CEK APAKAH USER ANGGOTA KELUARGA
+let isRegisterMode = false;
 let myChart = null;
 let myLineChart = null;
 let modeTab = 'keluarga'; 
@@ -48,36 +51,140 @@ let filterTahun = new Date().getFullYear();
 let filterDompet = 'semua'; 
 let dataBudget = {}; 
 let currentPengeluaran = {}; 
+let rawDataTransaksi = []; 
 
-// 🔥 VARIABEL BARU UNTUK EXPORT 🔥
-let rawDataTransaksi = []; // Menampung SEMUA data mentah (tanpa filter bulan)
-
-// [FITUR] LIST KATEGORI & DOMPET
 const KATEGORI_LIST = {
-    'pengeluaran': ['Makan', 'Jajan', 'Transport', 'Belanja', 'Tagihan', 'Kesehatan', 'Sedekah', 'Lainnya'],
+    'pengeluaran': ['Makan', 'Jajan', 'Belanja', 'Tagihan', 'Kesehatan', 'Lainnya'],
     'pemasukan': ['Gaji', 'Bonus', 'Hadiah', 'Penjualan', 'Investasi', 'Lainnya']
 };
-
 const DOMPET_LIST = ['Tunai', 'BCA', 'Mandiri', 'BRI', 'DANA', 'GoPay', 'ShopeePay', 'OVO', 'Lainnya'];
 
 // ===============================================
-// 3. AUTH & SETUP AWAL
+// 3. LOGIKA AUTENTIKASI DENGAN VALIDASI
+// ===============================================
+
+// Validasi format email secara langsung (Real-time)
+window.validasiEmail = () => {
+    const emailStr = document.getElementById('authEmail').value;
+    const errorMsg = document.getElementById('emailError');
+    // Regex standar untuk mengecek email yang valid (contoh: a@b.c)
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Jika input tidak kosong dan tidak lolos regex
+    if (emailStr.length > 0 && !regex.test(emailStr)) {
+        errorMsg.classList.remove('d-none');
+        return false;
+    } else {
+        errorMsg.classList.add('d-none');
+        return true;
+    }
+}
+
+window.toggleAuthMode = () => {
+    isRegisterMode = !isRegisterMode;
+    document.getElementById('authTitle').innerText = isRegisterMode ? 'Daftar Akun' : 'Masuk';
+    document.getElementById('btnAuth').innerText = isRegisterMode ? 'Daftar Sekarang' : 'Masuk Sekarang';
+    document.getElementById('authToggleText').innerText = isRegisterMode ? 'Sudah punya akun?' : 'Belum punya akun?';
+    document.getElementById('authLink').innerText = isRegisterMode ? 'Masuk di sini' : 'Daftar di sini';
+    
+    const groupNama = document.getElementById('groupNama');
+    const groupLupa = document.getElementById('groupLupaPassword');
+
+    if(isRegisterMode) {
+        groupNama.classList.remove('d-none');
+        groupLupa.classList.add('d-none'); // Sembunyikan 'Lupa Password' saat DAFTAR
+    } else {
+        groupNama.classList.add('d-none');
+        groupLupa.classList.remove('d-none'); // Tampilkan 'Lupa Password' saat LOGIN
+    }
+}
+
+window.handleAuth = () => {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    const nama = document.getElementById('authNama').value;
+
+    if (!email || !password) return alert("Silakan isi email dan password!");
+    
+    // Cek dulu apakah format email salah sebelum panggil Firebase
+    if (!validasiEmail()) return;
+
+    if (isRegisterMode) {
+    if (!nama) return alert("Silakan isi Nama Lengkap!");
+    
+    // PROSES DAFTAR
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((result) => {
+            // 1. Kirim Email Verifikasi (TAMBAHAN BARU)
+            result.user.sendEmailVerification();
+            
+            // 2. Update Nama Profil
+            return result.user.updateProfile({ displayName: nama });
+        })
+        .then(() => {
+            alert("Pendaftaran Berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum masuk.");
+            auth.signOut(); // Paksa keluar dulu agar mereka harus verifikasi
+            location.reload(); 
+        })
+        .catch(err => alert("Gagal Daftar: " + err.message));
+} else {
+        auth.signInWithEmailAndPassword(email, password)
+            .catch(err => alert("Gagal Masuk: " + err.message));
+    }
+}
+
+// Fungsi untuk mengirim email reset password
+window.resetPassword = () => {
+    const email = document.getElementById('authEmail').value;
+    
+    if (!email) return alert("Silakan isi kolom Email terlebih dahulu!");
+    if (!validasiEmail()) return alert("Format email tidak valid!");
+
+    // VALIDASI: Hanya izinkan reset jika email ada di daftar FAMILY_EMAILS
+    // Ini memastikan link tidak terkirim ke email 'palsu' atau orang luar
+    if (!FAMILY_EMAILS.includes(email)) {
+        return alert("Maaf, email ini tidak terdaftar atau belum terverifikasi sebagai anggota keluarga.");
+    }
+
+    if (confirm(`Kirim link reset password ke ${email}?`)) {
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                alert("Email reset password telah dikirim! Silakan cek kotak masuk Anda.");
+            })
+            .catch((error) => {
+                alert("Gagal mengirim email: " + error.message);
+            });
+    }
+};
+
+window.loginGoogle = () => { auth.signInWithPopup(provider).catch(err => alert("Gagal Login Google: " + err.message)); }
+window.logout = () => { auth.signOut(); }
+
+// ===============================================
+// 4. PANTAU STATUS LOGIN & HAK AKSES
 // ===============================================
 
 if (localStorage.getItem('theme') === 'dark') enableDarkMode(true);
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        if (typeof FAMILY_EMAILS !== 'undefined' && !FAMILY_EMAILS.includes(user.email)) {
-            alert("Email tidak terdaftar!"); auth.signOut(); return; 
+        // CEK APAKAH EMAIL SUDAH DIVERIFIKASI
+        if (!user.emailVerified) {
+            alert("Email Anda belum diverifikasi. Silakan cek kotak masuk email Anda!");
+            auth.signOut();
+            return;
         }
+
         currentUser = user;
         isAdmin = (typeof LIST_ADMIN !== 'undefined') && LIST_ADMIN.includes(user.email);
         
+        // Pengecekan apakah user adalah anggota keluarga
+        isFamilyMember = (typeof FAMILY_EMAILS !== 'undefined') && FAMILY_EMAILS.includes(user.email);
+        
         document.getElementById('loginScreen').classList.add('d-none');
         document.getElementById('appScreen').classList.remove('d-none');
-        document.getElementById('fotoUser').src = user.photoURL; 
-        document.getElementById('welcomeText').innerText = `Halo, ${user.displayName}!`;
+        document.getElementById('fotoUser').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`; 
+        document.getElementById('welcomeText').innerText = `Halo, ${user.displayName || 'Pengguna'}!`;
         document.getElementById('filterBulan').value = filterBulan;
         document.getElementById('filterTahun').value = filterTahun;
 
@@ -86,9 +193,20 @@ auth.onAuthStateChanged(user => {
         
         document.getElementById('tipe').addEventListener('change', updateKategori);
         const editTipeSelect = document.getElementById('editTipe');
-        if(editTipeSelect) {
-            editTipeSelect.addEventListener('change', () => updatePilihanKategori('editTipe', 'editKategori'));
+        if(editTipeSelect) editTipeSelect.addEventListener('change', () => updatePilihanKategori('editTipe', 'editKategori'));
+
+        // [LOGIKA PEMBATASAN AKSES ORANG LUAR]
+        if (!isFamilyMember) {
+            // Sembunyikan tab keluarga
+            document.getElementById('navItemKeluarga').classList.add('d-none');
+            // Paksa masuk ke tab pribadi
+            modeTab = 'pribadi';
+        } else {
+            document.getElementById('navItemKeluarga').classList.remove('d-none');
+            modeTab = 'keluarga'; // Default
         }
+
+        gantiTab(modeTab); // Atur tampilan sesuai tab yang diizinkan
 
         pantauSaldoKeluarga(); pantauSaldoPribadi(); pantauBudget(); refreshTampilan(); 
     } else {
@@ -96,6 +214,10 @@ auth.onAuthStateChanged(user => {
         document.getElementById('appScreen').classList.add('d-none');
     }
 });
+
+// ===============================================
+// 5. FUNGSI UI & TEMA
+// ===============================================
 
 function initDropdownDompet() {
     const targets = ['filterDompet', 'inputDompet', 'editDompet'];
@@ -134,7 +256,7 @@ function updatePilihanKategori(idTipe, idKategori) {
     });
 }
 
-function toggleDarkMode() { enableDarkMode(!document.body.classList.contains('dark-mode')); }
+window.toggleDarkMode = () => { enableDarkMode(!document.body.classList.contains('dark-mode')); }
 function enableDarkMode(isDark) {
     const body = document.body;
     const icon = document.getElementById('iconTheme');
@@ -155,7 +277,7 @@ function enableDarkMode(isDark) {
 }
 
 // ===============================================
-// 4. LOGIKA DATA & FILTER
+// 6. LOGIKA DATA TRANSAKSI & FILTER TABS
 // ===============================================
 
 window.gantiTab = (mode) => {
@@ -170,13 +292,19 @@ window.gantiTab = (mode) => {
         trf.classList.add('d-none'); 
     } else {
         btnK.classList.remove('active'); btnP.classList.add('active');
-        document.getElementById('judulSaldo').innerText = "Sisa Saldo";
-        trf.classList.remove('d-none');
+        document.getElementById('judulSaldo').innerText = "Sisa Saldo Pribadi";
+        
+        // Cek lagi: Hanya Tampilkan Tombol Transfer JIKA dia Keluarga
+        if (isFamilyMember) {
+            trf.classList.remove('d-none');
+        } else {
+            trf.classList.add('d-none');
+        }
     }
     pantauBudget(); refreshTampilan();
 }
 
-function refreshTampilan() {
+window.refreshTampilan = () => {
     filterBulan = parseInt(document.getElementById('filterBulan').value);
     filterTahun = parseInt(document.getElementById('filterTahun').value);
     const dompetEl = document.getElementById('filterDompet');
@@ -192,7 +320,7 @@ function bacaDataTransaksi() {
         let daily = {};
         let allDocs = [];
         
-        rawDataTransaksi = []; // Reset raw data
+        rawDataTransaksi = []; 
 
         snapshot.docs.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
 
@@ -203,7 +331,6 @@ function bacaDataTransaksi() {
             const isAdminEntry = listAdmin.includes(data.email_pencatat);
             const isMyEntry = data.email_pencatat === currentUser.email;
 
-            // --- 1. FILTER KEAMANAN TAB & SIMPAN KE RAW DATA ---
             let isValidTab = false;
             if (modeTab === 'keluarga') {
                 if (isAdminEntry || isMyEntry) {
@@ -215,20 +342,14 @@ function bacaDataTransaksi() {
 
             if (!isValidTab) return; 
 
-            // Simpan ke RAW DATA untuk keperluan Export (Ini berisi data semua bulan)
             rawDataTransaksi.push(data);
-
-            // --- 2. FILTER UNTUK TAMPILAN DASHBOARD ---
             
-            // Filter Dompet
             let dataDompet = data.dompet || 'Tunai'; 
             if (filterDompet !== 'semua' && dataDompet !== filterDompet) return;
 
-            // Hitung Saldo
             let val = parseInt(data.jumlah);
             if (data.tipe === 'pemasukan') totalSaldo += val; else totalSaldo -= val;
 
-            // Filter Bulan & Tahun (Hanya untuk tampilan)
             let dateObj = data.waktu ? data.waktu.toDate() : new Date();
             if (dateObj.getMonth() === filterBulan && dateObj.getFullYear() === filterTahun) {
                 
@@ -248,13 +369,12 @@ function bacaDataTransaksi() {
         globalSaldoSaatIni = totalSaldo;
         document.getElementById('tampilanSaldo').innerText = `Rp ${totalSaldo.toLocaleString('id-ID')}`;
 
-        // --- RENDER LIST (Hanya yang lolos filter bulan) ---
         let docsRev = allDocs.slice().reverse();
         docsRev.forEach(data => {
-            // Re-check logic untuk list
             const listAdmin = (typeof LIST_ADMIN !== 'undefined') ? LIST_ADMIN : [];
             const isAdminEntry = listAdmin.includes(data.email_pencatat);
             const isMyEntry = data.email_pencatat === currentUser.email;
+            
             let isValidTab = false;
             if (modeTab === 'keluarga') {
                 if (isAdminEntry || isMyEntry) {
@@ -306,6 +426,10 @@ function bacaDataTransaksi() {
     });
 }
 
+// ===============================================
+// 7. CHART RENDERER
+// ===============================================
+
 function renderChart(stats) {
     const ctx = document.getElementById('myChart'); if(myChart) myChart.destroy();
     if(Object.keys(stats).length === 0) return;
@@ -348,7 +472,7 @@ function renderLineChart(daily) {
 }
 
 // ===============================================
-// 5. MODAL & FUNGSI TOMBOL
+// 8. MODAL (LANGGANAN, TABUNGAN, BUDGET)
 // ===============================================
 
 function pantauLangganan() { db.collection('langganan').onSnapshot(s=>{let h='';const n=new Date(),p=`${n.getMonth()}-${n.getFullYear()}`;s.docs.forEach(d=>{const v=d.data(),id=d.id;if(modeTab==='keluarga'&&v.type!=='keluarga')return;if(modeTab!=='keluarga'&&(v.email_pemilik!==currentUser.email||v.type!=='pribadi'))return;let l=v.riwayat_bayar&&v.riwayat_bayar.includes(p),bg=l?'<span class="badge bg-success-subtle text-success border border-success rounded-pill">Lunas</span>':(n.getDate()>v.tgl_jatuh_tempo?'<span class="badge bg-danger text-white border rounded-pill">Telat!</span>':`<span class="badge bg-warning-subtle text-warning-emphasis border rounded-pill">Tgl ${v.tgl_jatuh_tempo}</span>`),btn=l?`<button class="btn btn-sm btn-light border" disabled>Lunas</button>`:`<button onclick="bayarLangganan('${id}','${v.nama}',${v.biaya})" class="btn btn-sm btn-primary rounded-pill shadow-sm">Bayar</button>`;h+=`<div class="col-md-6 col-12"><div class="card shadow-sm border-0 h-100"><div class="card-body d-flex justify-content-between align-items-center p-3"><div><div class="d-flex align-items-center gap-2 mb-1"><h6 class="fw-bold mb-0">${v.nama}</h6>${bg}</div><div class="small text-muted">Rp ${parseInt(v.biaya).toLocaleString()}</div></div><div class="d-flex align-items-center gap-2">${btn}<button onclick="hapusLangganan('${id}')" class="btn btn-link text-danger p-0"><i class="bi bi-x-circle"></i></button></div></div></div></div>`});document.getElementById('containerLangganan').innerHTML=h||'<div class="col-12 text-center text-muted small py-3">Belum ada tagihan.</div>'}); }
@@ -400,7 +524,7 @@ function renderBudgetProgress(exp) {
 }
 
 // ==========================================
-// 6. FUNGSI EDIT & HAPUS
+// 9. FUNGSI EDIT, HAPUS & EXPORT TRANSAKSI
 // ==========================================
 
 window.bukaModalEdit = (id) => { 
@@ -439,24 +563,13 @@ window.hapusData = (id) => {
     }
 }
 
-// ==========================================
-// 7. 🔥 FUNGSI EXPORT MODAL & PREVIEW BARU 🔥
-// ==========================================
-
-// Buka Modal Export dan Set Default ke Bulan Sekarang
 window.bukaModalExport = () => {
-    // Set default value ke bulan & tahun sekarang
     document.getElementById('exportBulan').value = new Date().getMonth();
     document.getElementById('exportTahun').value = new Date().getFullYear();
-    
-    // Tampilkan preview awal
     renderPreviewExport();
-    
-    // Buka modal
     new bootstrap.Modal(document.getElementById('modalExport')).show();
 }
 
-// Render Preview Data sesuai Pilihan Dropdown Modal
 window.renderPreviewExport = () => {
     const b = parseInt(document.getElementById('exportBulan').value);
     const t = parseInt(document.getElementById('exportTahun').value);
@@ -465,14 +578,10 @@ window.renderPreviewExport = () => {
     let totalKeluar = 0;
     let count = 0;
 
-    // Filter dari rawDataTransaksi (Data Mentah)
     rawDataTransaksi.forEach(data => {
         let dateObj = data.waktu ? data.waktu.toDate() : new Date();
         
-        // Cek kesesuaian Bulan & Tahun
         if (dateObj.getMonth() === b && dateObj.getFullYear() === t) {
-            
-            // Khusus Keluarga: Admin tidak melihat 'Setoran Anggota' sendiri
             if (modeTab === 'keluarga' && !isAdmin && data.email_pencatat === currentUser.email && data.kategori === 'Setoran Anggota') return; 
 
             let val = parseInt(data.jumlah);
@@ -481,13 +590,11 @@ window.renderPreviewExport = () => {
         }
     });
 
-    // Update UI Preview
     document.getElementById('prevMasuk').innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
     document.getElementById('prevKeluar').innerText = `Rp ${totalKeluar.toLocaleString('id-ID')}`;
     document.getElementById('prevCount').innerText = `${count} Data`;
 }
 
-// Proses Download File CSV dari Data Preview
 window.downloadFileExport = () => {
     const b = parseInt(document.getElementById('exportBulan').value);
     const t = parseInt(document.getElementById('exportTahun').value);
@@ -503,7 +610,6 @@ window.downloadFileExport = () => {
     rawDataTransaksi.forEach(row => {
         let dateObj = row.waktu ? row.waktu.toDate() : new Date();
         
-        // Filter lagi saat download
         if (dateObj.getMonth() === b && dateObj.getFullYear() === t) {
              if (modeTab === 'keluarga' && !isAdmin && row.email_pencatat === currentUser.email && row.kategori === 'Setoran Anggota') return;
 
@@ -528,7 +634,7 @@ window.downloadFileExport = () => {
 }
 
 // ==========================================
-// 8. FORM SUBMIT
+// 10. FORM SUBMIT TRANSAKSI BARU
 // ==========================================
 document.getElementById('formTransaksi').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -546,10 +652,7 @@ document.getElementById('formTransaksi').addEventListener('submit', (e) => {
         tanggal: new Date().toLocaleDateString('id-ID'),
         waktu: firebase.firestore.FieldValue.serverTimestamp(),
         email_pencatat: currentUser.email,
-        nama_pencatat: currentUser.displayName,
+        nama_pencatat: currentUser.displayName || 'Pengguna',
         is_family_trx: (modeTab === 'keluarga') 
     }).then(() => document.getElementById('formTransaksi').reset());
 });
-
-function loginGoogle() { auth.signInWithPopup(provider); }
-function logout() { auth.signOut(); }

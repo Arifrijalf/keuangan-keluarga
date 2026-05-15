@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -19,9 +19,49 @@
 
     <div id="loginScreen" class="container vh-100 d-flex justify-content-center align-items-center">
         <div class="card p-5 shadow-lg border-0 text-center" style="border-radius: 20px; max-width: 400px; width: 100%;">
-            <h1 class="mb-4 fw-bold">🔐<br>Keuangan<br>Keluarga</h1>
-            <button class="btn btn-light btn-lg shadow rounded-pill px-4 fw-bold text-primary" onclick="loginGoogle()">
-                <i class="bi bi-google me-2"></i> Login Google
+            <h2 id="authTitle" class="mb-4 fw-bold text-white">Masuk</h2>
+            
+            <div id="groupNama" class="mb-3 text-start d-none">
+                <label class="small fw-bold text-white">Nama Lengkap</label>
+                <input type="text" id="authNama" class="form-control" placeholder="Masukkan nama Anda">
+            </div>
+            
+            <div class="mb-3 text-start">
+                <label class="small fw-bold text-white">Email</label>
+                <input type="email" id="authEmail" class="form-control" placeholder="email@contoh.com" oninput="validasiEmail()">
+                <small id="emailError" class="fw-bold d-none mt-1" style="color: #ff6b6b; font-size: 0.8rem;">
+                    <i class="bi bi-exclamation-circle me-1"></i> Format email tidak sesuai
+                </small>
+            </div>
+            
+    <div class="mb-3 text-start">
+        <label class="small fw-bold text-white">Password</label>
+        <input type="password" id="authPassword" class="form-control" placeholder="Minimal 6 karakter">
+        
+        <div id="groupLupaPassword" class="text-end mt-1">
+            <a href="javascript:void(0)" onclick="resetPassword()" class="text-info text-decoration-none" style="font-size: 0.75rem;">
+                Lupa Password?
+            </a>
+        </div>
+    </div>
+
+            <button id="btnAuth" class="btn btn-primary w-100 rounded-pill fw-bold py-2 mb-3 shadow-sm" onclick="handleAuth()">
+                Masuk Sekarang
+            </button>
+
+            <p class="small mb-4 text-white">
+                <span id="authToggleText">Belum punya akun?</span> 
+                <a href="javascript:void(0)" onclick="toggleAuthMode()" id="authLink" class="text-info text-decoration-none fw-bold">Daftar di sini</a>
+            </p>
+
+            <div class="d-flex align-items-center mb-4">
+                <hr class="flex-grow-1 border-white opacity-50">
+                <span class="mx-2 small text-white">Atau</span>
+                <hr class="flex-grow-1 border-white opacity-50">
+            </div>
+
+            <button class="btn btn-light w-100 rounded-pill fw-bold text-primary" onclick="loginGoogle()">
+                <i class="bi bi-google me-2"></i> Masuk Google
             </button>
         </div>
     </div>
@@ -49,13 +89,12 @@
         <div class="container pb-5">
             
             <ul class="nav nav-pills nav-fill mb-4 shadow-sm bg-white rounded-4 p-1 border">
-                <li class="nav-item"><button class="nav-link active fw-bold rounded-4 py-2" id="tabKeluarga" onclick="gantiTab('keluarga')">👨‍👩‍👧‍👦 Kas Keluarga</button></li>
+                <li class="nav-item" id="navItemKeluarga"><button class="nav-link active fw-bold rounded-4 py-2" id="tabKeluarga" onclick="gantiTab('keluarga')">👨‍👩‍👧‍👦 Kas Keluarga</button></li>
                 <li class="nav-item"><button class="nav-link fw-bold rounded-4 py-2" id="tabPribadi" onclick="gantiTab('pribadi')">👤 Kas Pribadi</button></li>
             </ul>
 
             <div class="mb-4">
-                <select id="filterDompet" class="form-select form-select-lg border-0 shadow-sm fw-bold text-center text-primary" onchange="refreshTampilan()">
-                    </select>
+                <select id="filterDompet" class="form-select form-select-lg border-0 shadow-sm fw-bold text-center text-primary" onchange="refreshTampilan()"></select>
             </div>
 
             <div id="areaTransfer" class="d-grid gap-2 mb-4 d-none">
@@ -157,60 +196,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalExport" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0 bg-success-subtle">
-                    <h5 class="modal-title fw-bold text-success-emphasis"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Download Laporan</h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted small text-center mb-3">Pilih periode laporan yang ingin didownload.</p>
-                    
-                    <div class="row g-2 mb-4">
-                        <div class="col-6">
-                            <label class="small fw-bold mb-1">Bulan</label>
-                            <select id="exportBulan" class="form-select border-0 bg-light" onchange="renderPreviewExport()">
-                                <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option><option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option><option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option><option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="small fw-bold mb-1">Tahun</label>
-                            <select id="exportTahun" class="form-select border-0 bg-light" onchange="renderPreviewExport()">
-                                <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="card bg-light border-0 mb-3">
-                        <div class="card-body">
-                            <h6 class="fw-bold mb-3 text-center border-bottom pb-2">Preview Data</h6>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Pemasukan:</span>
-                                <span class="fw-bold text-success" id="prevMasuk">Rp 0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Pengeluaran:</span>
-                                <span class="fw-bold text-danger" id="prevKeluar">Rp 0</span>
-                            </div>
-                            <div class="d-flex justify-content-between mt-3 pt-2 border-top">
-                                <span class="fw-bold">Total Transaksi:</span>
-                                <span class="fw-bold text-primary" id="prevCount">0 Data</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button class="btn btn-success w-100 rounded-pill fw-bold py-2" onclick="downloadFileExport()">
-                        <i class="bi bi-download me-2"></i>Download .CSV
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <div class="modal fade" id="modalExport" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0 bg-success-subtle"><h5 class="modal-title fw-bold text-success-emphasis"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Download Laporan</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="text-muted small text-center mb-3">Pilih periode laporan yang ingin didownload.</p><div class="row g-2 mb-4"><div class="col-6"><label class="small fw-bold mb-1">Bulan</label><select id="exportBulan" class="form-select border-0 bg-light" onchange="renderPreviewExport()"><option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option><option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option><option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option><option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option></select></div><div class="col-6"><label class="small fw-bold mb-1">Tahun</label><select id="exportTahun" class="form-select border-0 bg-light" onchange="renderPreviewExport()"><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select></div></div><div class="card bg-light border-0 mb-3"><div class="card-body"><h6 class="fw-bold mb-3 text-center border-bottom pb-2">Preview Data</h6><div class="d-flex justify-content-between mb-2"><span class="text-muted">Pemasukan:</span><span class="fw-bold text-success" id="prevMasuk">Rp 0</span></div><div class="d-flex justify-content-between mb-2"><span class="text-muted">Pengeluaran:</span><span class="fw-bold text-danger" id="prevKeluar">Rp 0</span></div><div class="d-flex justify-content-between mt-3 pt-2 border-top"><span class="fw-bold">Total Transaksi:</span><span class="fw-bold text-primary" id="prevCount">0 Data</span></div></div></div></div><div class="modal-footer border-0"><button class="btn btn-success w-100 rounded-pill fw-bold py-2" onclick="downloadFileExport()"><i class="bi bi-download me-2"></i>Download .CSV</button></div></div></div></div>
     <div class="modal fade" id="modalEditTransaksi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold text-warning">✏️ Edit</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editId"><select class="form-select mb-3 bg-light border-0" id="editTipe"><option value="pengeluaran">🔴 Keluar</option><option value="pemasukan">🟢 Masuk</option></select><select class="form-select mb-3 bg-light border-0" id="editDompet"></select><select class="form-select mb-3 bg-light border-0" id="editKategori"></select><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control mb-3 bg-light border-0" id="editJumlah"><input type="text" class="form-control bg-light border-0" id="editKeterangan"></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 rounded-pill fw-bold" onclick="updateTransaksi()">Update</button></div></div></div></div>
-    
     <div class="modal fade" id="modalTambahLangganan" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Tagihan Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="small text-muted">Nama Tagihan</label><input type="text" id="namaLangganan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Biaya (Rp)</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="biayaLangganan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Tanggal Jatuh Tempo</label><select id="tglLangganan" class="form-select border-0 bg-light fw-bold"></select></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="simpanLanggananBaru()">Simpan</button></div></div></div></div>
     <div class="modal fade" id="modalTambahTabungan" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Target Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="small text-muted">Nama Target</label><input type="text" id="namaTabungan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Total (Rp)</label><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="targetTabungan" class="form-control border-0 bg-light"></div><div class="mb-3"><label class="small text-muted">Rencana</label><select id="pilihanTenor" class="form-select border-0 bg-light fw-bold mb-2" onchange="cekTenorManual()"><option value="1">1 Bulan</option><option value="3">3 Bulan</option><option value="6">6 Bulan</option><option value="12" selected>12 Bulan</option><option value="manual">Manual</option></select><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="inputTenorManual" class="form-control border-0 bg-warning-subtle d-none"></div></div><div class="modal-footer border-0"><button class="btn btn-success w-100 rounded-pill fw-bold" onclick="simpanTabunganBaru()">Buat Target</button></div></div></div></div>
     <div class="modal fade" id="modalSetorTabungan" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow"><div class="modal-header border-0 bg-primary-subtle"><h5 class="modal-title fw-bold" id="labelNamaTabungan">Detail</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="idTabunganSetor"><div class="d-flex justify-content-between text-muted small mb-3"><span id="infoTarget">Target: Rp 0</span><span id="infoSisa">Kurang: Rp 0</span></div><div class="progress mb-4" style="height: 20px;"><div id="barProgressTabungan" class="progress-bar bg-success" style="width: 0%"></div></div><div id="listCicilan" class="d-grid gap-2"></div><div class="mt-4 pt-3 border-top text-center"><small class="text-muted d-block mb-2">Setor manual:</small><div class="input-group"><input type="tel" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="inputSetoranManual" class="form-control" placeholder="Rp"><button class="btn btn-outline-primary" onclick="simpanSetoranManual()">Kirim</button></div></div></div><div class="modal-footer border-0 d-flex justify-content-between"><div id="grupTombolAdmin" class="d-none"><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="hapusTabungan()"><i class="bi bi-trash"></i></button><button class="btn btn-outline-warning btn-sm rounded-pill" onclick="resetTabungan()"><i class="bi bi-arrow-counterclockwise"></i></button></div><button class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Tutup</button></div></div></div></div>
