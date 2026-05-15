@@ -214,3 +214,10 @@ body.dark-mode .list-group-item {
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: #ffffff !important;
 }
+
+/* Menghilangkan efek biru/bayangan saat tombol ditekan di HP */
+.btn-link:focus, .btn-link:active {
+    outline: none !important;
+    box-shadow: none !important;
+    text-decoration: underline; /* Tetap muncul garis bawah saat ditekan */
+}

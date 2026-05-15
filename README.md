@@ -1,4 +1,3 @@
-cat << 'EOF' > README.md
 # 💸 Keuangan Keluarga App ✨
 
 > Aplikasi PWA pintar untuk mengelola *cash flow* keluarga dan pribadi. Kini lebih aman dengan sistem autentikasi mandiri dan pembatasan akses cerdas! 🚀
