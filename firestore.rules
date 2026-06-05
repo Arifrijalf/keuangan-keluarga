@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ATURAN: Izinkan SEMUA (Baca & Tulis) asalkan user sudah Login
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+  }
+}

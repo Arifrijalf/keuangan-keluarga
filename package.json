@@ -1,0 +1,10 @@
+{
+  "name": "keuangan-keluarga",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplikasi Keuangan Keluarga",
+  "scripts": {
+    "generate-env": "node scripts/generate-env.js",
+    "build": "npm run generate-env"
+  }
+}

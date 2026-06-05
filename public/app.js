@@ -1,27 +1,10 @@
 // ==========================================
-// 1. CONFIG FIREBASE & INISIALISASI
+// 1. INISIALISASI FIREBASE
 // ==========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyBxChORtQoRO66kOmhESsepnywDLII6K-4",
-  authDomain: "keuangankeluarga-ca833.firebaseapp.com",
-  projectId: "keuangankeluarga-ca833",
-  storageBucket: "keuangankeluarga-ca833.firebasestorage.app",
-  messagingSenderId: "489829945579",
-  appId: "1:489829945579:web:6d65b761844bc1d827aeae",
-};
+const LIST_ADMIN = window.__ENV__.ADMIN_EMAILS;
+const FAMILY_EMAILS = window.__ENV__.FAMILY_EMAILS;
 
-const LIST_ADMIN = ["arifrijalfadhilah@gmail.com", "jasarfa1@gmail.com"];
-const FAMILY_EMAILS = [
-  "arifrijalfadhilah@gmail.com",
-  "ahiwjw18@gmail.com",
-  "jasarfa1@gmail.com",
-  "mamanyanazief@gmail.com",
-  "aakuntest2007@gmail.com",
-  "tasha.arizka22@gmail.com",
-  "ochelogistics@gmail.com",
-];
-
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(window.__ENV__.FIREBASE_CONFIG);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
@@ -691,20 +674,18 @@ window.bayarLangganan = (id, n, b) => {
   const now = new Date(),
     p = `${now.getMonth()}-${now.getFullYear()}`;
   Promise.all([
-    db
-      .collection("transaksi")
-      .add({
-        tipe: "pengeluaran",
-        kategori: "Tagihan",
-        dompet: "Tunai",
-        jumlah: b,
-        keterangan: `Langganan: ${n}`,
-        tanggal: now.toLocaleDateString("id-ID"),
-        waktu: firebase.firestore.FieldValue.serverTimestamp(),
-        email_pencatat: currentUser.email,
-        nama_pencatat: currentUser.displayName,
-        is_family_trx: modeTab === "keluarga",
-      }),
+    db.collection("transaksi").add({
+      tipe: "pengeluaran",
+      kategori: "Tagihan",
+      dompet: "Tunai",
+      jumlah: b,
+      keterangan: `Langganan: ${n}`,
+      tanggal: now.toLocaleDateString("id-ID"),
+      waktu: firebase.firestore.FieldValue.serverTimestamp(),
+      email_pencatat: currentUser.email,
+      nama_pencatat: currentUser.displayName,
+      is_family_trx: modeTab === "keluarga",
+    }),
     db
       .collection("langganan")
       .doc(id)
@@ -915,37 +896,33 @@ window.simpanSetorKas = () => {
   const jum = parseInt(document.getElementById("jumlahSetorKas").value);
   if (jum > globalSaldoSaatIni) return alert("❌ Saldo Kurang!");
   Promise.all([
-    db
-      .collection("transaksi")
-      .add({
-        tipe: "pengeluaran",
-        kategori: "Transfer",
-        dompet: "Tunai",
-        jumlah: jum,
-        keterangan: "Ke Kas",
-        tanggal: new Date().toLocaleDateString("id-ID"),
-        waktu: firebase.firestore.FieldValue.serverTimestamp(),
-        email_pencatat: currentUser.email,
-        nama_pencatat: currentUser.displayName,
-        is_family_trx: false,
-      }),
-    db
-      .collection("transaksi")
-      .add({
-        tipe: "pemasukan",
-        kategori: "Setoran Anggota",
-        dompet: "Tunai",
-        jumlah: jum,
-        keterangan: `Dari ${currentUser.displayName}`,
-        tanggal: new Date().toLocaleDateString("id-ID"),
-        waktu: firebase.firestore.FieldValue.serverTimestamp(),
-        email_pencatat:
-          typeof LIST_ADMIN !== "undefined" && LIST_ADMIN.length > 0
-            ? LIST_ADMIN[0]
-            : currentUser.email,
-        nama_pencatat: currentUser.displayName,
-        is_family_trx: true,
-      }),
+    db.collection("transaksi").add({
+      tipe: "pengeluaran",
+      kategori: "Transfer",
+      dompet: "Tunai",
+      jumlah: jum,
+      keterangan: "Ke Kas",
+      tanggal: new Date().toLocaleDateString("id-ID"),
+      waktu: firebase.firestore.FieldValue.serverTimestamp(),
+      email_pencatat: currentUser.email,
+      nama_pencatat: currentUser.displayName,
+      is_family_trx: false,
+    }),
+    db.collection("transaksi").add({
+      tipe: "pemasukan",
+      kategori: "Setoran Anggota",
+      dompet: "Tunai",
+      jumlah: jum,
+      keterangan: `Dari ${currentUser.displayName}`,
+      tanggal: new Date().toLocaleDateString("id-ID"),
+      waktu: firebase.firestore.FieldValue.serverTimestamp(),
+      email_pencatat:
+        typeof LIST_ADMIN !== "undefined" && LIST_ADMIN.length > 0
+          ? LIST_ADMIN[0]
+          : currentUser.email,
+      nama_pencatat: currentUser.displayName,
+      is_family_trx: true,
+    }),
   ]).then(() => location.reload());
 };
 window.bukaModalBudget = () => {
