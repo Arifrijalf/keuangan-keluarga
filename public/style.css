@@ -1,52 +1,76 @@
-/* =========================================
-   1. IMPORT FONT & VARIABLES
-   ========================================= */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
 
 :root {
-  /* --- LIGHT MODE (Updated: Lebih Teduh) --- */
-  /* Mengganti background silau dengan Cool Gray profesional */
-  --bg-body: #eef2f6;
-  --text-main: #2d3436;
-  --card-bg: #ffffff;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --primary-gradient: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  --dominant: #0088cc;
+  --sekunder: #2e9e54;
+  --aksen: #1e4052;
+
+  --bg-body: #eef5f8;
+  --bg-card: #ffffff;
+  --bg-input: #ddecf5;
+
+  --bg-card-alt: #ebf7ee;
+  --border-color: #c5dace;
+  --badge-sekunder: #2e9e54;
+
+  --text-main: #1e3a47;
+  --text-muted: #627e8d;
+  --heading-color: #18323f;
+
+  --primary-gradient: linear-gradient(135deg, #0088cc 0%, #1e4052 100%);
+  --card-shadow: 0 2px 10px rgba(0, 136, 204, 0.07);
   --navbar-bg: #ffffff;
-  --navbar-text: #2d3436;
-  --input-bg: #f8f9fa;
-  --border-color: #e9ecef;
+  --navbar-text: #1e4052;
+  --btn-close-filter: none;
 }
 
-/* --- DARK MODE --- */
 body.dark-mode {
-  --bg-body: #121212;
-  --text-main: #e0e0e0; /* Putih Gading */
-  --card-bg: #1e1e1e;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --primary-gradient: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
-  --navbar-bg: #1e1e1e;
-  --navbar-text: #ffffff;
-  --input-bg: #2c2c2c;
-  --border-color: #333333;
+  --bg-body: #0c1c26;
+  --bg-card: #102b3a;
+  --bg-input: #0c1c26;
+  --bg-card-alt: #132e3e;
+
+  --border-color: #1c4052;
+  --text-main: #c8dde8;
+  --text-muted: #7292a3;
+  --heading-color: #8cc4dd;
+
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --navbar-bg: #102b3a;
+  --navbar-text: #c8dde8;
+  --btn-close-filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* =========================================
-   2. GLOBAL STYLES
-   ========================================= */
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* NAVBAR */
+h1, h2, h3, h4, h5, h6, .fw-bold {
+  color: var(--heading-color);
+}
+
+.text-primary {
+  color: var(--dominant) !important;
+}
+.text-success {
+  color: var(--sekunder) !important;
+}
+.text-muted {
+  color: var(--text-muted) !important;
+}
+.text-dark {
+  color: var(--heading-color) !important;
+}
+body.dark-mode .text-dark {
+  color: #c8dde8 !important;
+}
+
 .navbar {
   background-color: var(--navbar-bg) !important;
-  border-bottom: 1px solid var(--border-color);
-  transition: 0.3s;
+  border-bottom: 2px solid var(--dominant);
 }
 .navbar-brand,
 .nav-link,
@@ -54,158 +78,147 @@ body {
   color: var(--navbar-text) !important;
 }
 
-/* =========================================
-   3. CARD STYLING
-   ========================================= */
 .card {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--card-shadow);
   color: var(--text-main);
 }
 
-/* Kartu Saldo Utama (Biru/Gradient) */
 .card-saldo-utama {
   background: var(--primary-gradient);
-  color: white !important;
+  color: #fff !important;
   border: none;
 }
 .card-saldo-utama h1,
 .card-saldo-utama h6,
-.card-saldo-utama small {
-  color: white !important;
+.card-saldo-utama small,
+.card-saldo-utama .text-white-50 {
+  color: #fff !important;
 }
 
-/* =========================================
-   4. BOOTSTRAP OVERRIDES (MODERN LOOK)
-   ========================================= */
-/* Input Form */
+body.dark-mode .card-header,
+body.dark-mode .card-text,
+body.dark-mode .card-title {
+  color: var(--text-main) !important;
+}
+
+.btn-primary {
+  background-color: var(--dominant) !important;
+  border-color: var(--dominant) !important;
+  color: #fff !important;
+}
+.btn-primary:hover {
+  background-color: #0073ad !important;
+}
+
+.btn-success {
+  background-color: var(--sekunder) !important;
+  border-color: var(--sekunder) !important;
+  color: #fff !important;
+}
+.btn-success:hover {
+  background-color: #268744 !important;
+}
+
+.btn-info {
+  background-color: var(--dominant) !important;
+  border-color: var(--dominant) !important;
+  color: #fff !important;
+}
+
+.btn-outline-primary {
+  border-color: var(--dominant) !important;
+  color: var(--dominant) !important;
+}
+.btn-outline-primary:hover {
+  background-color: var(--dominant) !important;
+  color: #fff !important;
+}
+
+.btn-outline-info {
+  border-color: var(--dominant) !important;
+  color: var(--dominant) !important;
+}
+.btn-outline-info:hover {
+  background-color: var(--dominant) !important;
+  color: #fff !important;
+}
+
+.btn-outline-danger {
+  border-color: #c0392b !important;
+  color: #c0392b !important;
+}
+
+body.dark-mode .btn-light {
+  background-color: var(--dominant) !important;
+  color: #fff !important;
+  border-color: var(--dominant) !important;
+}
+
+body.dark-mode .btn-outline-danger {
+  border-color: #e74c3c !important;
+  color: #e74c3c !important;
+}
+
 .form-control,
 .form-select {
   padding: 12px 15px;
   border-radius: 12px;
-  border: 2px solid transparent;
-  background-color: var(--input-bg) !important;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-input) !important;
   color: var(--text-main) !important;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
 }
 
-/* Efek Fokus (Glowing) */
 .form-control:focus,
 .form-select:focus {
-  background-color: var(--card-bg) !important;
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-  outline: none;
+  border-color: var(--dominant) !important;
+  box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.15);
 }
 
-/* Modal */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-color);
+  color: var(--text-main) !important;
+}
+body.dark-mode .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238cc4dd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+body.dark-mode .form-control::placeholder {
+  color: #7292a3 !important;
+  opacity: 1;
+}
+
 .modal-content {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   color: var(--text-main);
   border: 1px solid var(--border-color);
 }
 
-/* Tombol Close Modal (Filter warna otomatis) */
 .btn-close {
   filter: var(--btn-close-filter);
 }
-body.dark-mode {
-  --btn-close-filter: invert(1) grayscale(100%) brightness(200%);
+
+body.dark-mode .bg-primary-subtle {
+  background-color: rgba(0, 136, 204, 0.15) !important;
 }
-body:not(.dark-mode) {
-  --btn-close-filter: none;
+body.dark-mode .bg-success-subtle {
+  background-color: rgba(46, 158, 84, 0.15) !important;
 }
 
-/* Animasi Tombol Tema */
-#btnTheme:active {
-  transform: rotate(360deg);
-  transition: 0.5s;
-}
-
-/* =========================================
-   5. ⚠️ DARK MODE FIXES (PERBAIKAN UTAMA) ⚠️
-   ========================================= */
-
-/* 1. Teks Umum jadi Terang */
-body.dark-mode .card-header,
-body.dark-mode .card-title,
-body.dark-mode .card-text,
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode h5,
-body.dark-mode h6,
-body.dark-mode span,
-body.dark-mode label,
-body.dark-mode div {
-  color: #e0e0e0 !important;
-}
-
-body.dark-mode .text-muted {
-  color: #b0b0b0 !important;
-}
-body.dark-mode .text-dark {
-  color: #f8f9fa !important;
-}
-
-/* 2. PERBAIKAN TOMBOL TEMA (MATAHARI) */
-/* Pastikan ikon matahari (text-warning) tetap kuning, JANGAN hitam */
-body.dark-mode .text-warning {
-  color: #ffc107 !important; /* Kuning Terang */
-}
-
-/* Hanya tombol dengan background kuning yang teksnya hitam */
-body.dark-mode .btn-warning {
-  color: #000000 !important;
-}
-
-body.dark-mode .btn-light {
-  color: #000000 !important;
-}
-
-/* 3. Modal & Card Background (Fix silau di dark mode) */
-body.dark-mode .bg-light {
-  background-color: #2c2c2c !important; /* Abu gelap */
-  color: #e0e0e0 !important;
-  border-color: #444 !important;
-}
-
-/* 4. Input Placeholder (Fix tulisan "Rp 0" hilang) */
-body.dark-mode .form-control::placeholder {
-  color: #bbbbbb !important;
-  opacity: 1;
-}
-
-/* 5. Input & Dropdown Dark Mode */
-body.dark-mode .form-control,
-body.dark-mode .form-select {
-  background-color: #2a2a2a !important;
-  border: 1px solid #444;
-  color: #ffffff !important;
-}
-/* Ikon panah dropdown putih */
-body.dark-mode .form-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
-}
-
-/* 6. List Riwayat (Agar tidak putih mentereng) */
 .list-group-item {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   color: var(--text-main);
   border-color: var(--border-color);
-  transition: 0.3s;
 }
 body.dark-mode .list-group-item {
-  background-color: #1e1e1e !important;
-  color: #e0e0e0 !important;
-  border: 1px solid #333;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color);
 }
-
-/* Pastikan Tombol di List bisa diklik */
 .list-group-item .text-end {
   position: relative;
   z-index: 10;
@@ -216,26 +229,52 @@ body.dark-mode .list-group-item {
   cursor: pointer;
 }
 
-/* =========================================
-   6. LOGIN SCREEN KEREN
-   ========================================= */
+.badge.bg-primary {
+  background-color: var(--dominant) !important;
+  color: #fff !important;
+}
+.badge.bg-success {
+  background-color: var(--sekunder) !important;
+  color: #fff !important;
+}
+body.dark-mode .badge.bg-light {
+  background-color: var(--bg-card-alt) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--dominant) !important;
+  color: #fff !important;
+}
+.nav-pills .nav-link {
+  color: var(--aksen) !important;
+}
+body.dark-mode .nav-pills .nav-link {
+  color: var(--text-main) !important;
+}
+.nav-pills {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
 #loginScreen {
   background:
-    linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)),
+    linear-gradient(rgba(30, 64, 82, 0.75), rgba(0, 136, 204, 0.35)),
     url("https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=1632&auto=format&fit=crop");
   background-size: cover;
   background-position: center;
 }
 
 #loginScreen .card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 136, 204, 0.12);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-#loginScreen .card h1 {
+#loginScreen .card h1, #loginScreen .card h2 {
   color: #ffffff !important;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
@@ -245,11 +284,81 @@ body.dark-mode .list-group-item {
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #ffffff !important;
 }
+#loginScreen .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
 
-/* Menghilangkan efek biru/bayangan saat tombol ditekan di HP */
+#loginScreen .btn-link.text-info {
+  color: #8cc4dd !important;
+}
+
+body.dark-mode #loginScreen .card {
+  background: rgba(12, 28, 38, 0.88);
+  backdrop-filter: blur(16px);
+}
+
+.progress-bar.bg-success {
+  background-color: var(--sekunder) !important;
+}
+.progress-bar.bg-danger {
+  background-color: #c0392b !important;
+}
+.progress-bar.bg-warning {
+  background-color: #d68910 !important;
+}
+.progress {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+}
+
 .btn-link:focus,
 .btn-link:active {
   outline: none !important;
   box-shadow: none !important;
-  text-decoration: underline; /* Tetap muncul garis bawah saat ditekan */
+  text-decoration: underline;
+}
+
+
+
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  background: var(--dominant);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 30px rgba(0, 136, 204, 0.3);
+  animation: slideDown 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+body.dark-mode .form-check-input:checked {
+  background-color: var(--dominant) !important;
+  border-color: var(--dominant) !important;
+}
+
+.border-primary {
+  border-color: var(--dominant) !important;
+}
+.border-success {
+  border-color: var(--sekunder) !important;
+}
+
+body.dark-mode .bg-light {
+  background-color: var(--bg-card-alt) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+body.dark-mode .bg-white {
+  background-color: var(--bg-card) !important;
 }

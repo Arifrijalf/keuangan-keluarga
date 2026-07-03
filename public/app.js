@@ -1,8 +1,8 @@
 // ==========================================
 // 1. INISIALISASI FIREBASE
 // ==========================================
-const LIST_ADMIN = window.__ENV__.ADMIN_EMAILS;
-const FAMILY_EMAILS = window.__ENV__.FAMILY_EMAILS;
+const LIST_ADMIN = window.__ENV__.ADMIN_EMAILS || [];
+const FAMILY_EMAILS = window.__ENV__.FAMILY_EMAILS || [];
 
 firebase.initializeApp(window.__ENV__.FIREBASE_CONFIG);
 const db = firebase.firestore();
@@ -30,9 +30,29 @@ let dataBudget = {};
 let currentPengeluaran = {};
 let rawDataTransaksi = [];
 
+
+
+function sanitize(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+
+
+function showAlert(msg) {
+  const existing = document.querySelector(".custom-alert");
+  if (existing) existing.remove();
+  const div = document.createElement("div");
+  div.className = "custom-alert";
+  div.innerHTML = sanitize(msg);
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+
 const KATEGORI_LIST = {
   pengeluaran: ["Makan", "Jajan", "Belanja", "Tagihan", "Kesehatan", "Lainnya"],
-  pemasukan: ["Gaji", "Bonus", "Hadiah", "Penjualan", "Investasi", "Lainnya"],
+  pemasukan: ["Gaji", "Bonus", "Hadiah", "Investasi", "Lainnya"],
 };
 const DOMPET_LIST = [
   "Tunai",
@@ -100,7 +120,7 @@ window.handleAuth = () => {
   if (!validasiEmail()) return;
 
   if (isRegisterMode) {
-    if (!nama) return alert("Silakan isi Nama Lengkap!");
+    if (!nama) return alert("Nama Lengkap!");
 
     auth
       .createUserWithEmailAndPassword(email, password)
@@ -129,9 +149,7 @@ window.resetPassword = () => {
   if (!email) return alert("Silakan isi kolom Email terlebih dahulu!");
   if (!validasiEmail()) return alert("Format email tidak valid!");
   if (!FAMILY_EMAILS.includes(email)) {
-    return alert(
-      "Maaf, email ini tidak terdaftar atau belum terverifikasi sebagai anggota keluarga.",
-    );
+    return alert("Maaf, email ini tidak terdaftar!");
   }
 
   if (confirm(`Kirim link reset password ke ${email}?`)) {
@@ -233,18 +251,13 @@ function initDropdownDompet() {
     if (id === "filterDompet") {
       const optAll = document.createElement("option");
       optAll.value = "semua";
-      optAll.text = "💼 Semua Sumber";
+      optAll.text = "Semua Sumber";
       el.appendChild(optAll);
     }
     DOMPET_LIST.forEach((d) => {
       const opt = document.createElement("option");
       opt.value = d;
-      opt.text =
-        (d === "Tunai"
-          ? "💵 "
-          : ["BCA", "Mandiri", "BRI"].includes(d)
-            ? "🏦 "
-            : "📱 ") + d;
+      opt.textContent = d;
       el.appendChild(opt);
     });
   });
@@ -476,9 +489,9 @@ function bacaDataTransaksi() {
                             <div class="d-flex align-items-center">
                                 <i class="bi ${ico} fs-3 me-3"></i>
                                 <div>
-                                    <div class="fw-bold">${data.kategori} ${badgeDompet}</div>
-                                    <div class="small text-muted">${dateObj.toLocaleDateString("id-ID")} • ${data.keterangan}</div>
-                                    <div class="badge bg-light text-secondary border mt-1" style="font-size:0.7em">${data.nama_pencatat}</div>
+                                     <div class="fw-bold">${sanitize(data.kategori)} ${badgeDompet}</div>
+                                    <div class="small text-muted">${dateObj.toLocaleDateString("id-ID")} • ${sanitize(data.keterangan)}</div>
+                                    <div class="badge bg-light text-secondary border mt-1" style="font-size:0.7em">${sanitize(data.nama_pencatat)}</div>
                                 </div>
                             </div>
                             <div class="text-end" style="z-index: 50; position: relative;">
@@ -626,7 +639,7 @@ function pantauLangganan() {
         btn = l
           ? `<button class="btn btn-sm btn-light border" disabled>Lunas</button>`
           : `<button onclick="bayarLangganan('${id}','${v.nama}',${v.biaya})" class="btn btn-sm btn-primary rounded-pill shadow-sm">Bayar</button>`;
-      h += `<div class="col-md-6 col-12"><div class="card shadow-sm border-0 h-100"><div class="card-body d-flex justify-content-between align-items-center p-3"><div><div class="d-flex align-items-center gap-2 mb-1"><h6 class="fw-bold mb-0">${v.nama}</h6>${bg}</div><div class="small text-muted">Rp ${parseInt(v.biaya).toLocaleString()}</div></div><div class="d-flex align-items-center gap-2">${btn}<button onclick="hapusLangganan('${id}')" class="btn btn-link text-danger p-0"><i class="bi bi-x-circle"></i></button></div></div></div></div>`;
+        h += `<div class="col-md-6 col-12"><div class="card shadow-sm border-0 h-100"><div class="card-body d-flex justify-content-between align-items-center p-3"><div><div class="d-flex align-items-center gap-2 mb-1"><h6 class="fw-bold mb-0">${sanitize(v.nama)}</h6>${bg}</div><div class="small text-muted">Rp ${parseInt(v.biaya).toLocaleString()}</div></div><div class="d-flex align-items-center gap-2">${btn}<button onclick="hapusLangganan('${id}')" class="btn btn-link text-danger p-0"><i class="bi bi-x-circle"></i></button></div></div></div></div>`;
     });
     document.getElementById("containerLangganan").innerHTML =
       h ||
@@ -669,7 +682,7 @@ window.simpanLanggananBaru = () => {
     );
 };
 window.bayarLangganan = (id, n, b) => {
-  if (b > globalSaldoSaatIni) return alert("❌ Saldo kurang!");
+  if (b > globalSaldoSaatIni) return showAlert("❌ Saldo kurang!");
   if (!confirm(`Bayar ${n}?`)) return;
   const now = new Date(),
     p = `${now.getMonth()}-${now.getFullYear()}`;
@@ -715,7 +728,7 @@ function pantauTabungan() {
       )
         return;
       const p = Math.min((v.terkumpul / v.target) * 100, 100);
-      h += `<div class="col-md-6"><div class="card shadow-sm border-0 h-100" style="cursor: pointer;" onclick="bukaModalSetorTabungan('${d.id}')"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-bold mb-0">${v.nama}</h6><span class="badge bg-success rounded-pill">${Math.round(p)}%</span></div><div class="progress mb-2" style="height:10px"><div class="progress-bar bg-success" style="width:${p}%"></div></div><div class="d-flex justify-content-between small text-muted"><span>Terkumpul: <b>Rp ${parseInt(v.terkumpul).toLocaleString()}</b></span><span>Target: Rp ${parseInt(v.target).toLocaleString()}</span></div></div></div></div>`;
+      h += `<div class="col-md-6"><div class="card shadow-sm border-0 h-100" style="cursor: pointer;" onclick="bukaModalSetorTabungan('${d.id}')"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-bold mb-0">${sanitize(v.nama)}</h6><span class="badge bg-success rounded-pill">${Math.round(p)}%</span></div><div class="progress mb-2" style="height:10px"><div class="progress-bar bg-success" style="width:${p}%"></div></div><div class="d-flex justify-content-between small text-muted"><span>Terkumpul: <b>Rp ${parseInt(v.terkumpul).toLocaleString()}</b></span><span>Target: Rp ${parseInt(v.target).toLocaleString()}</span></div></div></div></div>`;
     });
     document.getElementById("containerTabungan").innerHTML =
       h ||
@@ -804,7 +817,7 @@ window.bukaModalSetorTabungan = (id) => {
     });
 };
 window.prosesBayarCicilan = (id, n, k) => {
-  if (n > globalSaldoSaatIni) return alert("❌ Saldo kurang!");
+  if (n > globalSaldoSaatIni) return showAlert("❌ Saldo kurang!");
   const trx = {
     tipe: "pengeluaran",
     kategori: "Tabungan",
@@ -894,7 +907,7 @@ window.bukaModalSetorKas = () => {
 };
 window.simpanSetorKas = () => {
   const jum = parseInt(document.getElementById("jumlahSetorKas").value);
-  if (jum > globalSaldoSaatIni) return alert("❌ Saldo Kurang!");
+  if (jum > globalSaldoSaatIni) return showAlert("❌ Saldo Kurang!");
   Promise.all([
     db.collection("transaksi").add({
       tipe: "pengeluaran",
@@ -978,7 +991,7 @@ function renderBudgetProgress(exp) {
   ["Makan", "Jajan", "Transport", "Belanja", "Tagihan"].forEach((k) => {
     if ((dataBudget[k] || 0) > 0) {
       let p = Math.min(((exp[k] || 0) / dataBudget[k]) * 100, 100);
-      h += `<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="fw-bold">${k}</span><span class="text-muted">${(exp[k] || 0).toLocaleString()} / ${dataBudget[k].toLocaleString()}</span></div><div class="progress rounded-pill bg-light border" style="height:12px"><div class="progress-bar ${p > 90 ? "bg-danger" : p > 75 ? "bg-warning" : "bg-success"} rounded-pill" style="width:${p}%"></div></div></div>`;
+      h += `<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="fw-bold">${sanitize(k)}</span><span class="text-muted">${(exp[k] || 0).toLocaleString()} / ${dataBudget[k].toLocaleString()}</span></div><div class="progress rounded-pill bg-light border" style="height:12px"><div class="progress-bar ${p > 90 ? "bg-danger" : p > 75 ? "bg-warning" : "bg-success"} rounded-pill" style="width:${p}%"></div></div></div>`;
     }
   });
   document.getElementById("containerBudget").innerHTML =
@@ -1122,8 +1135,8 @@ document.getElementById("formTransaksi").addEventListener("submit", (e) => {
   e.preventDefault();
   const t = document.getElementById("tipe").value,
     j = parseInt(document.getElementById("jumlah").value);
-  if (t === "pengeluaran" && j > globalSaldoSaatIni)
-    return alert("❌ Saldo Kurang!");
+    if (t === "pengeluaran" && j > globalSaldoSaatIni)
+      return showAlert("❌ Saldo Kurang!");
 
   db.collection("transaksi")
     .add({

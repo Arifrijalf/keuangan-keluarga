@@ -6,7 +6,7 @@
     <title>Keuangan Keluarga</title>
 
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#667eea" />
+    <meta name="theme-color" content="#0ebeff" />
     <link rel="apple-touch-icon" href="icon.png" />
 
     <link
@@ -21,10 +21,11 @@
 
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="bg-light">
+  <body>
     <div
       id="loginScreen"
-      class="container vh-100 d-flex justify-content-center align-items-center"
+      class="container-fluid vh-100 d-flex justify-content-center align-items-center"
+      style="padding: 0; margin: 0;"
     >
       <div
         class="card p-5 shadow-lg border-0 text-center"
@@ -61,7 +62,7 @@
           </small>
         </div>
 
-        <div class="mb-0 text-start">
+        <div class="mb-4 text-start">
           <label class="small fw-bold text-white">Password</label>
           <input
             type="password"
@@ -70,7 +71,7 @@
             placeholder="Minimal 6 karakter"
           />
 
-          <div id="groupLupaPassword" class="text-end mt-1">
+          <div id="groupLupaPassword" class="text-end mt-1 mb-4">
             <button
               type="button"
               onclick="resetPassword()"
@@ -84,7 +85,7 @@
 
         <button
           id="btnAuth"
-          class="btn btn-primary w-100 rounded-pill fw-bold py-2 mt-0 mb-3 shadow-sm"
+          class="btn btn-primary w-100 rounded-pill fw-bold py-2 mb-3 shadow-sm"
           onclick="handleAuth()"
         >
           Masuk Sekarang
@@ -156,7 +157,7 @@
 
       <div class="container pb-5">
         <ul
-          class="nav nav-pills nav-fill mb-4 shadow-sm bg-white rounded-4 p-1 border"
+          class="nav nav-pills nav-fill mb-4 shadow-sm rounded-4 p-1 border"
         >
           <li class="nav-item" id="navItemKeluarga">
             <button
@@ -191,7 +192,7 @@
             class="btn btn-primary shadow fw-bold py-3 rounded-4"
             onclick="bukaModalSetorKas()"
           >
-            <i class="bi bi-send-fill me-2"></i> Setor ke Kas Keluarga 💸
+            <i class="bi bi-send-fill me-2"></i>             Setor ke Kas Keluarga 💸
           </button>
         </div>
 
@@ -236,9 +237,9 @@
               style="width: 130px"
               onchange="refreshTampilan()"
             >
-              <option value="semua" selected>📊 Semua</option>
-              <option value="pengeluaran">🔴 Keluar</option>
-              <option value="pemasukan">🟢 Masuk</option>
+              <option value="semua" selected>Semua</option>
+              <option value="pengeluaran">Keluar</option>
+              <option value="pemasukan">Masuk</option>
             </select>
           </div>
           <div class="card-body">
@@ -333,8 +334,8 @@
                     class="form-select border-0 bg-light fw-bold"
                     id="tipe"
                   >
-                    <option value="pengeluaran">🔴 Keluar</option>
-                    <option value="pemasukan">🟢 Masuk</option>
+                    <option value="pengeluaran">Keluar</option>
+                    <option value="pemasukan">Masuk</option>
                   </select>
                 </div>
                 <div class="col-6">
@@ -532,8 +533,8 @@
               class="form-select mb-3 bg-light border-0"
               id="editTipe"
             >
-              <option value="pengeluaran">🔴 Keluar</option>
-              <option value="pemasukan">🟢 Masuk</option></select
+              <option value="pengeluaran">Keluar</option>
+              <option value="pemasukan">Masuk</option></select
             ><select
               class="form-select mb-3 bg-light border-0"
               id="editDompet"

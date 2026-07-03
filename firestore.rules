@@ -1,11 +1,69 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // ATURAN: Izinkan SEMUA (Baca & Tulis) asalkan user sudah Login
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
-    
+
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      // NOTE: This assumes an 'admins' collection or similar.
+      // For now, we'll use a simple check, but a real app would have
+      // a more robust admin role management.
+      // For this project, assume hardcoded admin emails in .env,
+      // and therefore, no Firestore document for roles.
+      // This is a placeholder and should be replaced with proper role management.
+      return false; // Temporarily disable admin check in rules
+    }
+
+    // Rules for 'users' collection (if any)
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Rules for 'transaksi' collection
+    match /transaksi/{transaksiId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.email_pencatat == request.auth.token.email || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.email_pencatat == request.auth.token.email || isAdmin());
+    }
+
+    // Rules for 'langganan' collection
+    match /langganan/{langgananId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.email_pemilik == request.auth.token.email || resource.data.type == "keluarga" || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.email_pemilik == request.auth.token.email || isAdmin());
+    }
+
+    // Rules for 'tabungan_goals' collection
+    match /tabungan_goals/{goalId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.email_pemilik == request.auth.token.email || resource.data.type == "keluarga" || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.email_pemilik == request.auth.token.email || isAdmin());
+    }
+
+    // Rules for 'pengaturan' collection
+    match /pengaturan/{settingId} {
+      // Allow read for everyone for now, will refine based on specific document.
+      allow read: if isAuthenticated();
+
+      // Specific rules for 'keuangan_keluarga' and 'budget_keluarga' (admin only)
+      // This is a simplification; ideally, there would be a separate 'roles' collection.
+      allow write: if isAuthenticated() && (
+        (settingId == "keuangan_keluarga" && isAdmin()) ||
+        (settingId == "budget_keluarga" && isAdmin()) ||
+        (settingId == "saldo_" + request.auth.token.email && request.auth.token.email != null) ||
+        (settingId == "budget_" + request.auth.token.email && request.auth.token.email != null)
+      );
+
+      // Deny direct write access to all other 'pengaturan' documents for non-admins
+      allow write: if false; // Deny by default for other docs
+    }
+
+    // Default deny for any unmatched collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
